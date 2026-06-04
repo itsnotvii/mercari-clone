@@ -99,10 +99,44 @@ export default function SellPage() {
                         </select>
                     </div>
 
+                    {/* Condition */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Condition</label>
+                        <select 
+                            name="condition"
+                            value={form.condition}
+                            onChange={handleChange}
+                            required
+                            className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-red-400"
+                        >
+                            <option value="">Select condition</option>
+                            {conditions.map((c) => (
+                                <option key={c} value={c}>{c}</option>
+                            ))}
+                        </select>
+                    </div>
 
+                    {/* Description */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea
+                            name="description"
+                            value={form.description}
+                            onChange={handleChange}
+                            placeholder="Describe your item..."
+                            rows={4}
+                            className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-red-400 resize-none"
+                        />
+                    </div>
+            
+                    <button
+                        type="submit"
+                        className="w-full bg-red-500 text-white py-3 rounded-full font-medium hover:bg-red-600 transition"
+                    >
+                        List item
+                    </button>
                 </form>
             </main>
         </div>
-    )
-    
+    );
 }
