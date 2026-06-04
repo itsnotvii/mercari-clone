@@ -68,7 +68,38 @@ export default function SellPage() {
                         />
                     </div>
 
-                    
+                    {/* Price */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
+                        <input
+                            name="price"
+                            value={form.price}
+                            onChange={handleChange}
+                            required 
+                            type="number"
+                            placeholder="0"
+                            className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-red-400"
+                        />
+                    </div>
+
+                    {/* Category */}
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                        <select
+                            name="category"
+                            value={form.category}
+                            onChange={handleChange}
+                            required
+                            className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-non focus:border-red-400"
+                        >
+                            <option value="">Select a category</option>
+                            {categories.map((cat) => (
+                                <option key={cat} value={cat}>{cat}</option>
+                            ))}
+                        </select>
+                    </div>
+
+
                 </form>
             </main>
         </div>
