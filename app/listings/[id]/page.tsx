@@ -29,6 +29,26 @@ export default async function ListingPage({
                 </div>
             </nav>
 
+            {/* Content */}
+            <main className="max-w-4xl mx-auto px-4 py-8">
+                <Link href="/" className="text-sm text-gray-400 hover:text-red-400 mb-6 inline-block">
+                    ← Back to listings
+                </Link>
+
+                <div className="bg-white rounded-2xl shadow-sm overflow-hidden md:flex">
+                {/* Image */}
+                <div className="relative 2-full md:w-1/2 aspect-square">
+                    <Image
+                        src={listing.image}
+                        alt={listing.title}
+                        fill
+                        className="object.cover"
+                    />
+                </div>
+
+                
+            </main>
+
             
         </div>
     )
