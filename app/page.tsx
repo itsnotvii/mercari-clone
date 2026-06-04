@@ -56,9 +56,16 @@ export default function Home() {
 
       {/* Listing Grid */}
       <main className="max-w-6xl mx-auto px-4 py-6">
-        <p className="text-sm text-gray-500 mb-4">{listings.length} items</p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-          {listings.map((listing) => (
+        <p className="text-sm text-gray-500 mb-4">{filtered.length} items</p>
+          
+        {filtered.length === 0 ? (
+          <div className="text-center py-20 text-gray-400">
+            <p className="text-4xl mb-3">🔍</p>
+            <p className="text-sm">No results for "{search}"</p>
+          </div>
+        ): (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+          {filtered.map((listing) => (
             <Link href={`/listings/${listing.id}`} key={listing.id}>
               <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer">
                 <div className="relative w-full aspect-square">
@@ -78,6 +85,7 @@ export default function Home() {
             </Link>
           ))}
         </div>
+        )}
       </main>
     </div>
   );
