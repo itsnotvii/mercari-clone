@@ -26,15 +26,15 @@ export default function Home() {
           <div className="flex-1 mx-8">
             <input
               type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               placeholder="Search for anything..."
               className="w-full border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none focus:border-red-400"
             />
           </div>
-          <div className="flex gap-3 items-center">
-            <Link href="/sell" className="bg-red-500 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-red-600 transition">
-              Sell
-            </Link>
-          </div>
+          <Link href="/sell" className="bg-red-500 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-red-600 transition">
+            Sell
+          </Link>
         </div>
 
         {/* Category pills */}
@@ -42,7 +42,11 @@ export default function Home() {
           {categories.map((cat) => (
             <button
               key={cat}
-              className="whitespace-nowrap px-4 py-1 rounded-full border border-gray-300 text-sm hover:border-red-400 hover:text-red-500 transition"
+              className={`whitespace-nowrap px-4 py-1 rounded-full border text-sm transition ${
+                activeCategory === cat
+                ? "border-red-500 text-red-500 bg-red-50"
+                : "border-gray-300 hover:border-red-400 hover:text-red-500"
+              }`}
             >
               {cat}
             </button>
@@ -52,9 +56,16 @@ export default function Home() {
 
       {/* Listing Grid */}
       <main className="max-w-6xl mx-auto px-4 py-6">
-        <p className="text-sm text-gray-500 mb-4">{listings.length} items</p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-          {listings.map((listing) => (
+        <p className="text-sm text-gray-500 mb-4">{filtered.length} items</p>
+          
+        {filtered.length === 0 ? (
+          <div className="text-center py-20 text-gray-400">
+            <p className="text-4xl mb-3">🔍</p>
+            <p className="text-sm">No results for "{search}"</p>
+          </div>
+        ): (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+          {filtered.map((listing) => (
             <Link href={`/listings/${listing.id}`} key={listing.id}>
               <div className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition cursor-pointer">
                 <div className="relative w-full aspect-square">
@@ -74,6 +85,7 @@ export default function Home() {
             </Link>
           ))}
         </div>
+        )}
       </main>
     </div>
   );
