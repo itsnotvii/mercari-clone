@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { listings } from "./data";
@@ -5,6 +8,15 @@ import { listings } from "./data";
 const categories = ["All", "Electronics", "Sneakers", "Clothing", "Gaming", "Home", "Bags"];
 
 export default function Home() {
+  const [search, setSearch] = useState("")
+  const [activeCategory, setActiveCategory] = useState("All");
+
+  const filtered = listings.filter((listing) => {
+    const matchesSearch = listing.title.toLowerCase().includes(search.toLowerCase());
+    const matchesCategory = activeCategory === "All" || listing.category === activeCategory;
+    return matchesSearch && matchesCategory;
+  });
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Navbar */}
