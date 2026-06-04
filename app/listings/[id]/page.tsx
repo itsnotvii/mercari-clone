@@ -73,6 +73,17 @@ export default async function ListingPage({
                                 <span className="font-medium">{listing.likes}</span>
                             </div>
                         </div>
+
+                        {/* Seller */}
+                        <div className="mt-6 flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                            <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-500 font-bold text-sm">
+                                {listing.seller[0].toUpperCase()}
+                            </div>
+                            <div>
+                                <p className="text-sm font-medium">{listing.seller}</p>
+                                <p className="text-xs text-gray-400">Seller</p>
+                            </div>
+                        </div>
                 </div>
 
 
