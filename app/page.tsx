@@ -4,14 +4,13 @@ import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { listings } from "./data";
-import { useTheme } from "next-themes";
 
 const categories = ["All", "Electronics", "Sneakers", "Clothing", "Gaming", "Home", "Bags"];
 
 export default function Home() {
   const [search, setSearch] = useState("")
   const [activeCategory, setActiveCategory] = useState("All");
-  const { theme, setTheme } = useTheme();
+  const [dark, setDark] = useState(false);
 
   const filtered = listings.filter((listing) => {
     const matchesSearch = listing.title.toLowerCase().includes(search.toLowerCase());
@@ -20,7 +19,8 @@ export default function Home() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className={dark ? "dark" : ""}>
+      <div className="min-h-screen bg-gray-50 dark:bg-zinc-900 dark:text-white">
       {/* Navbar */}
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-10">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
@@ -35,10 +35,10 @@ export default function Home() {
             />
           </div>
           <button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            onClick={() => setDark(!dark)}
             className="text-xl px-2"
           >
-            {theme === "dark ? "☀️" : "🌙"}
+            {dark ? "☀️" : "🌙"}
           </button>
           <Link href="/sell" className="bg-red-500 text-white px-4 py-2 rounded-full text-sm font-medium hover:bg-red-600 transition">
             Sell
@@ -95,6 +95,7 @@ export default function Home() {
         </div>
         )}
       </main>
+    </div>
     </div>
   );
 }
