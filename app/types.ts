@@ -7,4 +7,5 @@ export interface Listing {
   image: string;
   seller: string;
   likes: number;
+  description?: string;
 }

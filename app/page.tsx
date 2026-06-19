@@ -1,15 +1,18 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { listings } from "./data";
+import { supabase } from "@/lib/supabase";
+import { Listing } from "./types";
 
 const categories = ["All", "Electronics", "Sneakers", "Clothing", "Gaming", "Home", "Bags"];
-
 type SortOption = "default" | "price-asc" | "price-desc" | "most-liked";
 
 export default function Home() {
+  const [listings, setListings] = useState<Listing[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<{ email?: string; id: string } | null>(null);
   const [search, setSearch] = useState("");
   const [activeCategory, setActiveCategory] = useState("All");
   const [dark, setDark] = useState(false);
@@ -19,8 +22,47 @@ export default function Home() {
   const [liked, setLiked] = useState<number[]>([]);
   const [showLikedOnly, setShowLikedOnly] = useState(false);
 
+  useEffect(() => {
+    fetchListings();
+    fetchUser();
+  }, []);
+
+  async function fetchListings() {
+    const { data, error } = await supabase
+      .from("listings")
+      .select("*, profiles(username)")
+      .eq("sold", false)
+      .order("created_at", { ascending: false });
+
+    if (!error && data) {
+      const mapped: Listing[] = data.map((l) => ({
+        id: l.id,
+        title: l.title,
+        price: l.price,
+        category: l.category,
+        condition: l.condition,
+        image: l.image_url || "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400",
+        seller: l.profiles?.username || "unknown",
+        likes: l.likes,
+        description: l.description,
+      }));
+      setListings(mapped);
+    }
+    setLoading(false);
+  }
+
+  async function fetchUser() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) setUser({ id: user.id, email: user.email });
+  }
+
+  async function handleSignOut() {
+    await supabase.auth.signOut();
+    setUser(null);
+  }
+
   const toggleLike = (e: React.MouseEvent, id: number) => {
-    e.preventDefault(); // don't navigate to listing page
+    e.preventDefault();
     setLiked((prev) =>
       prev.includes(id) ? prev.filter((l) => l !== id) : [...prev, id]
     );
@@ -41,7 +83,7 @@ export default function Home() {
     if (sort === "most-liked") result = [...result].sort((a, b) => b.likes - a.likes);
 
     return result;
-  }, [search, activeCategory, minPrice, maxPrice, sort, showLikedOnly, liked]);
+  }, [listings, search, activeCategory, minPrice, maxPrice, sort, showLikedOnly, liked]);
 
   const s = (light: string, darkVal: string) => (dark ? darkVal : light);
 
@@ -102,6 +144,36 @@ export default function Home() {
               >
                 {dark ? "☀️" : "🌙"}
               </button>
+
+              {user ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-medium" style={{ color: s("rgba(0,0,0,0.5)", "rgba(255,255,255,0.5)") }}>
+                    {user.email}
+                  </span>
+                  <button
+                    onClick={handleSignOut}
+                    className="text-xs font-semibold px-3 py-2 rounded-xl transition-all"
+                    style={{
+                      background: s("rgba(0,0,0,0.05)", "rgba(255,255,255,0.08)"),
+                      color: s("rgba(0,0,0,0.5)", "rgba(255,255,255,0.5)"),
+                    }}
+                  >
+                    Sign out
+                  </button>
+                </div>
+              ) : (
+                <Link
+                  href="/auth"
+                  className="text-xs font-semibold px-3 py-2 rounded-xl transition-all"
+                  style={{
+                    background: s("rgba(0,0,0,0.05)", "rgba(255,255,255,0.08)"),
+                    color: s("rgba(0,0,0,0.5)", "rgba(255,255,255,0.5)"),
+                  }}
+                >
+                  Sign in
+                </Link>
+              )}
+
               <Link
                 href="/sell"
                 className="px-4 py-2 rounded-xl text-sm font-bold text-white transition-all hover:scale-105 hover:shadow-lg"
@@ -146,7 +218,6 @@ export default function Home() {
           }}
         >
           <div className="max-w-7xl mx-auto px-6 py-3 flex flex-wrap items-center gap-3">
-            {/* Sort */}
             <select
               value={sort}
               onChange={(e) => setSort(e.target.value as SortOption)}
@@ -163,14 +234,13 @@ export default function Home() {
               <option value="most-liked">Most Liked</option>
             </select>
 
-            {/* Price range */}
             <div className="flex items-center gap-2">
               <input
                 type="number"
                 placeholder="Min $"
                 value={minPrice}
                 onChange={(e) => setMinPrice(e.target.value)}
-                className="w-20 text-xs px-3 py-2 rounded-lg focus:outline-none transition-all"
+                className="w-20 text-xs px-3 py-2 rounded-lg focus:outline-none"
                 style={{
                   background: s("rgba(0,0,0,0.05)", "rgba(255,255,255,0.06)"),
                   color: s("#0a0a0f", "#fff"),
@@ -183,7 +253,7 @@ export default function Home() {
                 placeholder="Max $"
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(e.target.value)}
-                className="w-20 text-xs px-3 py-2 rounded-lg focus:outline-none transition-all"
+                className="w-20 text-xs px-3 py-2 rounded-lg focus:outline-none"
                 style={{
                   background: s("rgba(0,0,0,0.05)", "rgba(255,255,255,0.06)"),
                   color: s("#0a0a0f", "#fff"),
@@ -192,7 +262,6 @@ export default function Home() {
               />
             </div>
 
-            {/* Liked only toggle */}
             <button
               onClick={() => setShowLikedOnly(!showLikedOnly)}
               className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg transition-all hover:scale-105"
@@ -207,11 +276,10 @@ export default function Home() {
               ❤️ Saved {liked.length > 0 && `(${liked.length})`}
             </button>
 
-            {/* Clear filters */}
             {(minPrice || maxPrice || sort !== "default" || showLikedOnly) && (
               <button
                 onClick={() => { setMinPrice(""); setMaxPrice(""); setSort("default"); setShowLikedOnly(false); }}
-                className="text-xs font-semibold px-3 py-2 rounded-lg transition-all"
+                className="text-xs font-semibold px-3 py-2 rounded-lg"
                 style={{ color: "#ff3b3b" }}
               >
                 Clear filters
@@ -222,7 +290,7 @@ export default function Home() {
               className="ml-auto text-xs font-medium"
               style={{ color: s("rgba(0,0,0,0.35)", "rgba(255,255,255,0.35)") }}
             >
-              {filtered.length} results
+              {loading ? "Loading..." : `${filtered.length} results`}
             </span>
           </div>
         </div>
@@ -236,7 +304,20 @@ export default function Home() {
 
         {/* Grid */}
         <main className="max-w-7xl mx-auto px-6 pb-12">
-          {filtered.length === 0 ? (
+          {loading ? (
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+              {[...Array(12)].map((_, i) => (
+                <div key={i} className="rounded-2xl overflow-hidden animate-pulse"
+                  style={{ background: s("rgba(0,0,0,0.06)", "rgba(255,255,255,0.04)") }}>
+                  <div className="aspect-square w-full" style={{ background: s("rgba(0,0,0,0.08)", "rgba(255,255,255,0.06)") }} />
+                  <div className="p-3 space-y-2">
+                    <div className="h-3 rounded" style={{ background: s("rgba(0,0,0,0.08)", "rgba(255,255,255,0.06)") }} />
+                    <div className="h-3 w-1/2 rounded" style={{ background: s("rgba(0,0,0,0.08)", "rgba(255,255,255,0.06)") }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : filtered.length === 0 ? (
             <div className="text-center py-24">
               <p className="text-5xl mb-4">🔍</p>
               <p className="text-sm font-medium" style={{ color: s("rgba(0,0,0,0.3)", "rgba(255,255,255,0.3)") }}>
@@ -266,8 +347,6 @@ export default function Home() {
                         className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                         style={{ background: "linear-gradient(to top, rgba(0,0,0,0.4), transparent)" }}
                       />
-
-                      {/* Like button */}
                       <button
                         onClick={(e) => toggleLike(e, listing.id)}
                         className="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center text-sm transition-all hover:scale-110"
@@ -283,10 +362,7 @@ export default function Home() {
                     </div>
 
                     <div className="p-3">
-                      <p
-                        className="text-xs truncate font-semibold leading-snug"
-                        style={{ color: s("#0a0a0f", "rgba(255,255,255,0.9)") }}
-                      >
+                      <p className="text-xs truncate font-semibold leading-snug" style={{ color: s("#0a0a0f", "rgba(255,255,255,0.9)") }}>
                         {listing.title}
                       </p>
                       <p className="text-sm font-black mt-1" style={{ color: s("#0a0a0f", "#fff") }}>
