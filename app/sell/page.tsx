@@ -1,142 +1,129 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
 
-const categories = ["Electronics", "Sneakers", "Clothing", "Gaming", "Home", "Bags"]
+const categories = ["Electronics", "Sneakers", "Clothing", "Gaming", "Home", "Bags"];
 const conditions = ["New", "Like New", "Good", "Fair"];
 
 export default function SellPage() {
-    const [submitted, setSubmitted] = useState(false);
-    const [form, setForm] = useState({
-        title: "",
-        price: "",
-        category: "",
-        condition: "",
-        description: "",
+  const router = useRouter;
+  const [userId, setUserId] = useState<String | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [form, setForm] = useState({
+    title: "",
+    price: "",
+    category: "",
+    condition: "",
+    description: "",
+  });
+  const [image, setImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user} }) => {
+      if (!user) router.push("/auth");
+      else setUserId(user.id);
     });
+  }, [router]);
 
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-        setForm({...form, [e.target.name]: e.target.value });
-    };
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        setSubmitted(true);
-    };
-
-    if (submitted) {
-        return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="bg-white rounded-2xl p-8 shadow-sm text-center max-w-sm">
-                    <div className="text-5xl mb-4">🎉</div>
-                    <h2 className="text-xl font-bold mb-2">Listing Submitted!</h2>
-                    <p className="text-gray-400 text-s mb-6">Your item has been listed for sale.</p>
-                    <Link href="/" className="bg-red-500 text-white px-6 py-3 rounded-full text-sm font-medium hover:bg-red-600 transition">
-                        Back to listings
-                    </Link>
-                </div>
-            </div>
-        );
+  const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImage(file);
+      setImagePreview(URL.createObjectURL(file));
     }
+  };
 
-    return (
-        <div className="min-h-screen bg-gray-50">
-            {/* Navbar */}
-            <nav className="bg-white border-b border-gray-200 sticky top-0 z-10">
-                <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-4">
-                    <Link href="/" className="text-2xl font-bold text-red-500">
-                        mercari
-                    </Link>
-                </div>
-            </nav>
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!userId) return;
+    setLoading(true);
+    setError("");
 
-            <main className="max-w-lg mx-auto px-4 py-8">
-                <h1 className="text-2xl font-bold mb-6">List an item</h1>
+    try {
+      let imageUrl = null;
 
-                <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm p-6 space-y-5">
-                    {/* Title */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-                        <input
-                            name="title"
-                            value={form.title}
-                            onChange={handleChange}
-                            required
-                            placeholder="What are you selling?"
-                            className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-red-400"
-                        />
-                    </div>
+      if (image) {
+        const ext = image.name.split(".").pop();
+        const path = `${userId}.${Date.now()}.${ext}`;
+        const { error: uploadError } = await supabase.storage
+          .from("listing-imaged")
+          .upload(path, image);
+        if (uploadError) throw uploadError;
+        const { data: urlData } = supabase.storage
+          .from("listing-images")
+          .getPublicUrl(path);
+        imageUrl = urlData.publicUrl;
+      }
 
-                    {/* Price */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
-                        <input
-                            name="price"
-                            value={form.price}
-                            onChange={handleChange}
-                            required 
-                            type="number"
-                            placeholder="0"
-                            className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-red-400"
-                        />
-                    </div>
+      const { error: insertError } = await supabase.from("listing").insert({
+        title: form.title,
+        price: Number(form.price),
+        category: form.category,
+        condition: form.condition,
+        description: form.description,
+        image_url: imageUrl,
+        seller_id: userId,
+      });
 
-                    {/* Category */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                        <select
-                            name="category"
-                            value={form.category}
-                            onChange={handleChange}
-                            required
-                            className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-non focus:border-red-400"
-                        >
-                            <option value="">Select a category</option>
-                            {categories.map((cat) => (
-                                <option key={cat} value={cat}>{cat}</option>
-                            ))}
-                        </select>
-                    </div>
+      if (insertError) throw insertError;
+      router.push("/");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message: "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                    {/* Condition */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Condition</label>
-                        <select 
-                            name="condition"
-                            value={form.condition}
-                            onChange={handleChange}
-                            required
-                            className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-red-400"
-                        >
-                            <option value="">Select condition</option>
-                            {conditions.map((c) => (
-                                <option key={c} value={c}>{c}</option>
-                            ))}
-                        </select>
-                    </div>
-
-                    {/* Description */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                        <textarea
-                            name="description"
-                            value={form.description}
-                            onChange={handleChange}
-                            placeholder="Describe your item..."
-                            rows={4}
-                            className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-red-400 resize-none"
-                        />
-                    </div>
-            
-                    <button
-                        type="submit"
-                        className="w-full bg-red-500 text-white py-3 rounded-full font-medium hover:bg-red-600 transition"
-                    >
-                        List item
-                    </button>
-                </form>
-            </main>
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <nav className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="maw-w-6xl mx-auto px-4 py-3 flex items-center gap-4">
+          <Link href="/" className="text-2xl font-bold text-red-500">
+            mercari 
+          </Link>
         </div>
-    );
+      </nav>
+
+      <main className="max-w-lg mx-auto px-4 py-8">
+        <h1 className="text-2xl font-bold mb-6">List an item</h1>
+
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm p-6 space-y-5">
+
+          {/* Image upload */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Photo</label>
+            <div
+              className="w-full h-40 border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center cursor-pointer overflow-hidden relative"
+              onClick={() => document.getElementById("image-input")?.click()}
+            >
+              {imagePreview ? (
+                <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+              ) : (
+                <div className="text-center">
+                  <p className="text-3xl mb-1">📷</p>
+                  <p className="text-xs text-gray-400">Click to upload a photo</p>
+                </div>
+              )}
+            </div>
+            <input
+              id="image-input"
+              type="file"
+              accept="image/*"
+              onChange={handleImage}
+              className="hidden"
+            />
+          </div>
+        </form>
+      </main>
+    </div>
+  )
 }
