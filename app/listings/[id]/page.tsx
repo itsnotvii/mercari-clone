@@ -12,7 +12,7 @@ export default async function ListingPage({
 
   const { data: listing, error } = await supabase
     .from("listings")
-    .select("*, profiles(username")
+    .select("*, profiles(username)")
     .eq("id", id)
     .single();
 
@@ -54,7 +54,7 @@ export default async function ListingPage({
               <span className="text-xs bg-gray-100 text-gray-500 px-2 py-1 rounded-full">
                 {listing.category}
               </span>
-              <h1 className="text-xl font-bold m5t-3 text-gray-900">
+              <h1 className="text-xl font-bold mt-3 text-gray-900">
                 {listing.title}
               </h1>
               <p className="text-3xl font-bold text-gray-900 mt-2">
@@ -89,10 +89,29 @@ export default async function ListingPage({
               </div>
 
               {/* Seller */}
+              <div className="mt-6 flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-500 font-bold text-sm">
+                  {seller[0].toUpperCase()}
+                </div>
+                <div>
+                  <p className="text-sm font-medium">{seller}</p>
+                  <p className="text-xs text-gray-400">Seller</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Buttons */}
+            <div className="mt-6 flex flex-col gap-3">
+              <button className="w-full bg-red-500 text-white py-3 rounded-full font-medium hover:bg-red-600 transition">
+                Buy Now — ${listing.price}
+              </button>
+              <button className="w-full border border-red-500 text-red-500 py-3 rounded-full font-medium hover:bg-red-50 transition">
+                Make an Offer
+              </button>
             </div>
           </div>
         </div>
       </main>
     </div>
-  )
+  );
 }
