@@ -9,9 +9,10 @@ const categories = ["Electronics", "Sneakers", "Clothing", "Gaming", "Home", "Ba
 const conditions = ["New", "Like New", "Good", "Fair"];
 
 export default function SellPage() {
-  const router = useRouter;
-  const [userId, setUserId] = useState<String | null>(null);
+  const router = useRouter();
+  const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [generating, setGenerating] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState({
     title: "",
@@ -24,7 +25,7 @@ export default function SellPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data: { user} }) => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
       if (!user) router.push("/auth");
       else setUserId(user.id);
     });
@@ -42,6 +43,42 @@ export default function SellPage() {
     }
   };
 
+  const handleGenerate = async () => {
+    if (!image) return;
+    setGenerating(true);
+    setError("");
+
+    try {
+      const reader = new FileReader();
+      reader.readAsDataURL(image);
+      reader.onload = async () => {
+        const base64 = (reader.result as string).split(",")[1];
+        const mediaType = image.type;
+
+        const res = await fetch("/api/generate-listing", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ imageBase64: base64, mediaType }),
+        });
+
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        setForm({
+          title: data.title || "",
+          price: String(data.price || ""),
+          category: data.category || "",
+          condition: data.condition || "",
+          description: data.description || "",
+        });
+        setGenerating(false);
+      };
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Generation failed");
+      setGenerating(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!userId) return;
@@ -53,9 +90,9 @@ export default function SellPage() {
 
       if (image) {
         const ext = image.name.split(".").pop();
-        const path = `${userId}.${Date.now()}.${ext}`;
+        const path = `${userId}/${Date.now()}.${ext}`;
         const { error: uploadError } = await supabase.storage
-          .from("listing-imaged")
+          .from("listing-images")
           .upload(path, image);
         if (uploadError) throw uploadError;
         const { data: urlData } = supabase.storage
@@ -64,7 +101,7 @@ export default function SellPage() {
         imageUrl = urlData.publicUrl;
       }
 
-      const { error: insertError } = await supabase.from("listing").insert({
+      const { error: insertError } = await supabase.from("listings").insert({
         title: form.title,
         price: Number(form.price),
         category: form.category,
@@ -77,7 +114,7 @@ export default function SellPage() {
       if (insertError) throw insertError;
       router.push("/");
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message: "Something went wrong");
+      setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -86,9 +123,9 @@ export default function SellPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <nav className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="maw-w-6xl mx-auto px-4 py-3 flex items-center gap-4">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-4">
           <Link href="/" className="text-2xl font-bold text-red-500">
-            mercari 
+            mercari
           </Link>
         </div>
       </nav>
@@ -102,7 +139,7 @@ export default function SellPage() {
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Photo</label>
             <div
-              className="w-full h-40 border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center cursor-pointer overflow-hidden relative"
+              className="w-full h-48 border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center cursor-pointer overflow-hidden relative"
               onClick={() => document.getElementById("image-input")?.click()}
             >
               {imagePreview ? (
@@ -123,6 +160,30 @@ export default function SellPage() {
             />
           </div>
 
+          {/* AI Generate button */}
+          {image && (
+            <button
+              type="button"
+              onClick={handleGenerate}
+              disabled={generating}
+              className="w-full py-3 rounded-full font-medium text-sm transition flex items-center justify-center gap-2"
+              style={{
+                background: generating
+                  ? "rgba(0,0,0,0.05)"
+                  : "linear-gradient(135deg, #6366f1, #8b5cf6)",
+                color: generating ? "rgba(0,0,0,0.4)" : "#fff",
+              }}
+            >
+              {generating ? (
+                <>
+                  <span className="animate-spin">⏳</span> Generating...
+                </>
+              ) : (
+                <>✨ Generate listing with AI</>
+              )}
+            </button>
+          )}
+
           {/* Title */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
@@ -139,7 +200,7 @@ export default function SellPage() {
           {/* Price */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
-            <input 
+            <input
               name="price"
               value={form.price}
               onChange={handleChange}
@@ -170,7 +231,7 @@ export default function SellPage() {
           {/* Condition */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Condition</label>
-            <select 
+            <select
               name="condition"
               value={form.condition}
               onChange={handleChange}
@@ -178,9 +239,9 @@ export default function SellPage() {
               className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-red-400"
             >
               <option value="">Select condition</option>
-                {conditions.map((c) => (
-                  <option key={c} value={c}>{c}</option>
-                ))}
+              {conditions.map((c) => (
+                <option key={c} value={c}>{c}</option>
+              ))}
             </select>
           </div>
 

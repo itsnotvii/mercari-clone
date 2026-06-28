@@ -27,6 +27,8 @@ export default function Home() {
     fetchUser();
   }, []);
 
+
+
   async function fetchListings() {
     const { data, error } = await supabase
       .from("listings")
