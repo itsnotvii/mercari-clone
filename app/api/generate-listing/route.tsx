@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 const client = new Anthropic();
 
-export async function POST(req, NextRequest) {
+export async function POST(req: NextRequest) {
   try {
     const { imageBase64, mediaType } = await req.json();
 
@@ -25,7 +25,7 @@ export async function POST(req, NextRequest) {
             {
               type: "text",
               text: `You are a marketplace listing assistant. Analyze this image and generate a listing.
-
+              
 Respond with ONLY a JSON object, no markdown, no explanation:
 {
   "title": "concise product title (max 60 chars)",
@@ -46,6 +46,6 @@ Respond with ONLY a JSON object, no markdown, no explanation:
     return NextResponse.json(parsed);
   } catch (err) {
     console.error(err);
-    return NextResponse.json({ error: "Failed to generate listing" }, { status: 500});
+    return NextResponse.json({ error: "Failed to generate listing" }, { status: 500 });
   }
 }
