@@ -75,6 +75,9 @@ export default async function ProfilePage({
                   <div className="p-3">
                     <p className="text-xs font-semibold truncate text-gray-900">{listing.title}</p>
                     <p className="text-sm font-black mt-1">${listing.price}</p>
+                    <span className="text-xs px-2 py-0.5 rounded-md font-medium mt-2 inline-block bg-gray-100 text-gray-400">
+                      {listing.condition}
+                    </span>
                   </div>
                 </div>
               </Link>
