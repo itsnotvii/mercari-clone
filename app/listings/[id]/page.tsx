@@ -89,15 +89,16 @@ export default async function ListingPage({
               </div>
 
               {/* Seller */}
-              <Link href={`/profile/${seller}`} className="mt-6 flex items-center gap-3 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition">
+              <div className="mt-6 flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                 <div className="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center text-red-500 font-bold text-sm">
                   {seller[0].toUpperCase()}
                 </div>
                 <div>
                   <p className="text-sm font-medium">{seller}</p>
-                  <p className="text-xs text-gray-400">View profile →</p>
+                  <p className="text-xs text-gray-400">Seller</p>
                 </div>
-              </Link>
+              </div>
+            </div>
 
             {/* Buttons */}
             <div className="mt-6 flex flex-col gap-3">
