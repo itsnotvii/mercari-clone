@@ -1,6 +1,6 @@
 # Mercari Clone
 
-A full-stack marketplace app inspired by Mercari, built with Next.js 14, TypeScript, Supabase, and the Claude AI API.
+A full-stack marketplace web app inspired by Mercari, built with Next.js 14, TypeScript, Supabase, and the Claude AI API.
 
 **Live demo:** _coming soon_  
 **Repo:** [github.com/itsnotvii/mercari-clone](https://github.com/itsnotvii/mercari-clone)
