@@ -11,7 +11,7 @@ A full-stack marketplace web application inspired by Mercari, built with Next.js
 
 - **AI listing generator** — upload a photo and Claude automatically generates the title, description, category, condition, and suggested price
 - **Authentication** — sign up and sign in with email/password via Supabase Auth
-- **Real-time listings** — create, browse, and search listings stored in a Supabase PostgreSQL database
+- **Real-time/live listings** — create, browse, and search listings stored in a Supabase PostgreSQL database
 - **Image upload** — photos stored in Supabase Storage
 - **Stripe payments** — buy items with a real checkout flow (test mode)
 - **User profiles** — view all listings by any seller
