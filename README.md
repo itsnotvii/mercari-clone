@@ -9,7 +9,7 @@ A full-stack marketplace web application inspired by Mercari, which was built wi
 
 ## Features
 
-- **AI listing generator** — upload a photo and Claude automatically generates the title, description, category, condition, and suggested price
+- **AI listing generator** — upload a photo and Claude automatically generates the title, description, category, condition, and suggested price!
 - **Authentication** — sign up and sign in with an email/password via Supabase Auth
 - **Real-time/live listings** — create, browse, and search listings stored in a Supabase PostgreSQL database
 - **Image upload** — photos stored in Supabase Storage
