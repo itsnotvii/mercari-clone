@@ -144,7 +144,7 @@ lib/
 
 ---
 
-## Testing Payments
+## Testing Payments via Stripe
 
 Use Stripe's test card:
 
