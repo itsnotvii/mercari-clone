@@ -51,7 +51,17 @@ export default function BuyButton({
         amount: Number(offerAmount),
       });
 
-      
+      if (error) throw error;
+      setOfferStatus("success");
+    } catch (err: unknown) {
+      setErrorMsg(err instanceof Error ? err.message : "Something went wrong");
+      setOfferStatus("error");
+    } finally {
+      setOfferLoading(false);
     }
-  }
+  };
+
+  return (
+    
+  )
 }
