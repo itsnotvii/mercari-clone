@@ -99,7 +99,14 @@ export default function BuyButton({
             </div>
           ) : (
             <>
-              
+              <h3 className="text-lg font-bold mb-1">Make an Offer</h3>
+              <p className="text-sm text-gray-400 mb-5">
+                Listed at <span className="font-semibold text-gray-700">${price}</span>
+              </p>
+
+              <div className="relative mb-4">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">$</span>
+              </div>
             </>
           )}
 
