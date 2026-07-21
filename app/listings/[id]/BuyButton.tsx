@@ -62,6 +62,31 @@ export default function BuyButton({
   };
 
   return (
-    
+    <>
+      <div className="mt-6 flex flex-col gap-3">
+        <button
+          onClick={handlerBuy}
+          disabled={buyLoading}
+          className="w-full border border-red-500 text-red-500 py-3 rounded-full font-medium hover:bg-red-50 transition"
+        >
+          Make an Offer
+        </button>
+      </div>
+
+      {/* Offer modal */}
+      {showOffer && (
+        <div className="fixed inset-0 x-50 flex items-center justify-center px-4"
+        style={{ background: "rgba(0,0,0,0.4)", backdropFilter: "blur(4px)" }}
+        onClick={() => setShowOffer(false)}
+      >
+        <div
+          className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          
+        </div>
+      </div>
+      )}
+    </>
   )
 }
