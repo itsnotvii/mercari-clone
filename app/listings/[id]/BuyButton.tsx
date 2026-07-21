@@ -62,6 +62,50 @@ export default function BuyButton({
   };
 
   return (
-    
+    <>
+      <div className="mt-6 flex flex-col gap-3">
+        <button
+          onClick={handlerBuy}
+          disabled={buyLoading}
+          className="w-full border border-red-500 text-red-500 py-3 rounded-full font-medium hover:bg-red-50 transition"
+        >
+          Make an Offer
+        </button>
+      </div>
+
+      {/* Offer modal */}
+      {showOffer && (
+        <div className="fixed inset-0 x-50 flex items-center justify-center px-4"
+        style={{ background: "rgba(0,0,0,0.4)", backdropFilter: "blur(4px)" }}
+        onClick={() => setShowOffer(false)}
+      >
+        <div
+          className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {offerStatus === "success" ? (
+            <div className="text-center py-4">
+              <p className="text-4xl mb-3">🎉</p>
+              <h3 className="text-lg font-bold mb-1">Offer Sent!</h3>
+              <p className="text-sm text-gray-400 mb-5">
+                The seller will review your offer of ${offerAmount}.
+              </p>
+              <button
+                onClick={() => setShowOffer(false)}
+                className="w-full bg-red-500 text-white py-2.5 rounded-full text-sm font-medium hover:bg-red-600 transition"
+              >
+                Done
+              </button>
+            </div>
+          ) : (
+            <>
+              
+            </>
+          )}
+
+        </div>
+      </div>
+      )}
+    </>
   )
 }
