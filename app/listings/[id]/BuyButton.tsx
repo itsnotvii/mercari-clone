@@ -3,3 +3,35 @@
 import { useState } from "react";
 import { supabase } from "@/lib/supabase";
 
+export default function BuyButton({
+  listingId,
+  title,
+  price,
+  image,
+  sellerId,
+}: {
+  listingId: number;
+  title: string;
+  price: number;
+  image: string;
+  sellerId: string,
+}) {
+  const [buyLoading, setBuyLoading] = useState(false);
+  const [showOffer, setShowOffer] = useState(false);
+  const [offerAmount, setOfferAmount] = useState("");
+  const [offerLoading, setOfferLoading] = useState(false);
+  const [offerStatus, setOfferStatus] = useState<"idle" | "success" | "error">("idle");
+
+  const handleBuy = async () => {
+    setBuyLoading(true);
+    const res = await fetch("/api'create-checkout", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ listingId, title, price, image }),
+    });
+    const data = await res.json();
+    if (data.url) window.location.href = data.url;
+    else setBuyLoading(false);
+  };
+  
+}
