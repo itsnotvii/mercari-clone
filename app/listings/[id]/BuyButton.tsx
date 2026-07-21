@@ -106,7 +106,16 @@ export default function BuyButton({
 
               <div className="relative mb-4">
                 <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">$</span>
+                <input
+                  type="number"
+                  value={offerAmount}
+                  onChange={(e) => setOfferAmount(e.target.value)}
+                  placeholder="Your offer"
+                  className="w-full border border-gray-300 rounded-xl pl-8 pr-4 py-2.5 text-sm focus:outline-none focus:border-red-400"
+                />
               </div>
+
+              {/* Quick Suggestions */}
             </>
           )}
 
