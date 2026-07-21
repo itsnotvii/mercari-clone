@@ -83,7 +83,26 @@ export default function BuyButton({
           className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl"
           onClick={(e) => e.stopPropagation()}
         >
-          
+          {offerStatus === "success" ? (
+            <div className="text-center py-4">
+              <p className="text-4xl mb-3">🎉</p>
+              <h3 className="text-lg font-bold mb-1">Offer Sent!</h3>
+              <p className="text-sm text-gray-400 mb-5">
+                The seller will review your offer of ${offerAmount}.
+              </p>
+              <button
+                onClick={() => setShowOffer(false)}
+                className="w-full bg-red-500 text-white py-2.5 rounded-full text-sm font-medium hover:bg-red-600 transition"
+              >
+                Done
+              </button>
+            </div>
+          ) : (
+            <>
+              
+            </>
+          )}
+
         </div>
       </div>
       )}
