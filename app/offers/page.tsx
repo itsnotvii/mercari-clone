@@ -28,4 +28,19 @@ export default function OffersPage() {
       else fetchOffers(user.id);
     });
   }, [router]);
+
+  async function fetchOffers(sellerId: string) {
+    const { data, error } = await supabase
+    .from("offers")
+    .select(`
+      *,
+      listings(tutle, price, image_url),
+      buyer:profiles!offers_buyer_id_fkey(username)
+      `)
+      .eq("seller_id", sellerId)
+      .order("created_at", { ascending: false });
+
+    if (!error && data) setOffers(data as Offer[]);
+    setLoading(false);
+  }
 }
