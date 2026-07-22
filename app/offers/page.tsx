@@ -53,7 +53,7 @@ export default function OffersPage() {
     setUpdating(null);
   }
 
-  const pending = offers.filter((o) => offers.status === "pending");
+  const pending = offers.filter((o) => o.status === "pending");
   const past = offers.filter((o) => o.status !== "pending");
 
   const statusBadge = (status: string) => {
@@ -62,5 +62,26 @@ export default function OffersPage() {
     return "bg-yellow-100 text-yellow-600";
   };
 
-  
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <nav className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+          <Link href="/" className="text-2xl font-bold text-red-500">
+            mercari
+          </Link>
+          <Link href="/" className="text-sm text-gray-400 hover:text-red-400">
+            ← Back
+          </Link>
+        </div>
+      </nav>
+
+      <main className="max-w-2xl mx-auto px-4 py-8">
+        <h1 className="text-2xl font-bold mb-6">Offers</h1>
+
+        {loading ? (
+          <div className="soace-y-3"
+        )}
+      </main>
+    </div>
+  )
 }
