@@ -116,6 +116,13 @@ export default function BuyButton({
               </div>
 
               {/* Quick Suggestions */}
+              <div className="flex gap-2 mb-4">
+                {[0.9, 0.8, 0.7].map((pct) => (
+                  <button
+                    key={pct}
+                    onClick={() => setOfferAmount(String(Math.round(price * pct)))}
+                ))}
+              </div>
             </>
           )}
 
