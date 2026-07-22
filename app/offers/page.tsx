@@ -43,4 +43,24 @@ export default function OffersPage() {
     if (!error && data) setOffers(data as Offer[]);
     setLoading(false);
   }
+
+  async function handleStatus(offerId: number, status: "accepted" | "declined") {
+    setUpdating(offerId);
+    await supabase.from("offers").update({ status }).eq("id", offerId);
+    setOffers((prev) => 
+      prev.map((o) => (o.id === offerId ? { ...o, status } : o))
+    );
+    setUpdating(null);
+  }
+
+  const pending = offers.filter((o) => offers.status === "pending");
+  const past = offers.filter((o) => o.status !== "pending");
+
+  const statusBadge = (status: string) => {
+    if (status === "accepted") return "bg-green-100 text-green-600";
+    if (status === "declined") return "bg-red-100 text-red-500";
+    return "bg-yellow-100 text-yellow-600";
+  };
+
+  
 }
