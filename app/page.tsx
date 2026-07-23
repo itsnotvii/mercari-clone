@@ -52,6 +52,7 @@ export default function Home() {
     }
     setLoading(false);
   }
+  
 
   async function fetchUser() {
     const { data: { user } } = await supabase.auth.getUser();
