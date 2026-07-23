@@ -23,7 +23,7 @@ export default function Home() {
   const [showLikedOnly, setShowLikedOnly] = useState(false);
 
   useEffect(() => {
-    fetchListings();
+    fetchListings(); // api call reminder in notes
     fetchUser();
   }, []);
 
