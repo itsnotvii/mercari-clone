@@ -23,7 +23,7 @@ export default function Home() {
   const [showLikedOnly, setShowLikedOnly] = useState(false);
 
   useEffect(() => {
-    fetchListings();
+    fetchListings(); // api call reminder in notes
     fetchUser();
   }, []);
 
@@ -52,6 +52,7 @@ export default function Home() {
     }
     setLoading(false);
   }
+  
 
   async function fetchUser() {
     const { data: { user } } = await supabase.auth.getUser();
@@ -152,6 +153,16 @@ export default function Home() {
                   <span className="text-xs font-medium" style={{ color: s("rgba(0,0,0,0.5)", "rgba(255,255,255,0.5)") }}>
                     {user.email}
                   </span>
+                  <Link
+                    href="/offers"
+                    className="text-xs font-semibold px-3 py-2 rounded-xl transition-all"
+                    style={{
+                      background: s("rgba(0,0,0,0.05)", "rgba(255,255,255,0.08)"),
+                      color: s("rgba(0,0,0,0.5)", "rgba(255,255,255,0.5)"),
+                    }}
+                  >
+                    Offers
+                  </Link>
                   <button
                     onClick={handleSignOut}
                     className="text-xs font-semibold px-3 py-2 rounded-xl transition-all"
