@@ -57,4 +57,28 @@ export default function MyListingsPage() {
     setListings((prev) => prev.filter((l) => l.id !== id));
     setUpdating(null);
   }
+
+  const active = listings.filter((l) => !l.sold);
+  const sold = listings.filter((l) => l.sold);
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <nav className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+          <Link href="/" className="text-2xl font-bold text-red-500">
+            mercari
+          </Link>
+          <Link href="/" className="text-sm text-gray-400 hover:text-red-400">
+            ← Back
+          </Link>
+        </div>
+      </nav>
+
+      <main className="max-w-3xl mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-6">
+          
+        </div>
+      </main>
+    </div>
+  )
 }
