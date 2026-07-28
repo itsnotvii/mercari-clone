@@ -1,22 +1,23 @@
 # Mercari Clone
 
-Full-stack marketplace web application inspired by Mercari, which was built with Next.js 14, TypeScript, Supabase, and the Claude AI API.
+A full-stack peer-to-peer marketplace app inspired by Mercari. Built with Next.js 16, TypeScript, Supabase, Stripe, and the Anthropic Claude API.
 
-**Live demo:** ---
 **Repo:** [github.com/itsnotvii/mercari-clone](https://github.com/itsnotvii/mercari-clone)
 
 ---
 
 ## Features
 
-- **An AI listing generator** — upload a photo and Claude automatically generates the title, description, category, condition, and suggested price!
-- **Authentication** — sign up and sign in with an email/password via Supabase Auth
-- **Real-time/live listings** — create, browse, and search listings stored in a Supabase PostgreSQL database
+- **AI listing generator** — upload a photo and Claude automatically writes the title, description, category, condition, and suggested price
+- **Authentication** — email/password sign up and login via Supabase Auth
+- **Listings** — create, browse, search, and filter by category, price range, and condition
 - **Image upload** — photos stored in Supabase Storage
-- **Stripe payments** — buy items with a real checkout flow (test mode)
-- **User profiles** — view all listings by any seller
-- **Search & filters** — filter by category, price range, condition, and sort order
-- **Dark mode** — full dark/light theme toggle
+- **Stripe payments** — full checkout flow powered by Stripe
+- **Make an Offer** — buyers send offers with quick price suggestions; sellers accept or decline
+- **Offers dashboard** — sellers manage all incoming offers in one place
+- **My Listings** — sellers view, manage, mark as sold, relist, or delete their listings
+- **User profiles** — public seller pages showing all active listings
+- **Dark mode** — full light/dark theme toggle
 
 ---
 
@@ -24,8 +25,8 @@ Full-stack marketplace web application inspired by Mercari, which was built with
 
 | Layer | Technology |
 |---|---|
-| Framework | Next.js 14 (App Router, TypeScript) |
-| Styling | Tailwind CSS |
+| Framework | Next.js 16 (App Router, TypeScript) |
+| Styling | Tailwind CSS v4 |
 | Database | Supabase (PostgreSQL) |
 | Auth | Supabase Auth |
 | Storage | Supabase Storage |
@@ -92,19 +93,36 @@ create table listings (
   created_at timestamp with time zone default timezone('utc', now())
 );
 
+create table offers (
+  id bigint generated always as identity primary key,
+  listing_id bigint references listings(id) on delete cascade not null,
+  buyer_id uuid references profiles(id) on delete cascade not null,
+  seller_id uuid references profiles(id) on delete cascade not null,
+  amount numeric not null,
+  status text default 'pending' check (status in ('pending', 'accepted', 'declined')),
+  created_at timestamp with time zone default timezone('utc', now())
+);
+
+-- RLS policies
 alter table listings enable row level security;
 alter table profiles enable row level security;
+alter table offers enable row level security;
 
 create policy "Listings are viewable by everyone" on listings for select using (true);
 create policy "Users can insert their own listings" on listings for insert with check (auth.uid() = seller_id);
 create policy "Users can update their own listings" on listings for update using (auth.uid() = seller_id);
+create policy "Users can delete their own listings" on listings for delete using (auth.uid() = seller_id);
 
 create policy "Profiles are viewable by everyone" on profiles for select using (true);
 create policy "Users can insert their own profile" on profiles for insert with check (auth.uid() = id);
 create policy "Users can update their own profile" on profiles for update using (auth.uid() = id);
+
+create policy "Buyers can insert offers" on offers for insert with check (auth.uid() = buyer_id);
+create policy "Buyers and sellers can view their offers" on offers for select using (auth.uid() = buyer_id or auth.uid() = seller_id);
+create policy "Sellers can update offer status" on offers for update using (auth.uid() = seller_id);
 ```
 
-Also create a public Storage bucket named `listing-images` in your Supabase dashboard.
+Also create a **public** Storage bucket named `listing-images` in your Supabase dashboard under Storage → New bucket.
 
 ### Run Locally
 
@@ -118,10 +136,10 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ## How the AI Listing Generator Works
 
-1. User uploads a photo on the `/sell` page
-2. The image is converted to base64 and sent to `/api/generate-listing`
-3. The Claude API analyzes the image and returns a JSON object with `title`, `description`, `category`, `condition`, and `price`
-4. The form auto-fills — user can edit anything before submitting
+1. Seller uploads a photo on the `/sell` page
+2. The image is base64-encoded and sent to `/api/generate-listing`
+3. Claude analyzes the image and returns a JSON object with `title`, `description`, `category`, `condition`, and `price`
+4. The form auto-fills instantly — everything is editable before submitting
 
 ---
 
@@ -130,23 +148,25 @@ Open [http://localhost:3000](http://localhost:3000).
 ```
 app/
 ├── api/
-│   ├── generate-listing/   # Claude AI endpoint
-│   └── create-checkout/    # Stripe checkout endpoint
-├── auth/                   # Login / sign up page
-├── listings/[id]/          # Listing detail + buy button
-├── profile/[username]/     # Seller profile page
-├── sell/                   # Create listing with AI
-└── success/                # Post-purchase success page
+│   ├── generate-listing/     # Claude AI vision endpoint
+│   └── create-checkout/      # Stripe checkout session endpoint
+├── auth/                     # Login / sign up
+├── listings/[id]/            # Listing detail page + buy/offer buttons
+├── my-listings/              # Seller's listing management dashboard
+├── offers/                   # Seller's incoming offers dashboard
+├── profile/[username]/       # Public seller profile page
+├── sell/                     # Create listing with AI generation
+└── success/                  # Post-purchase confirmation page
 lib/
-├── supabase.ts             # Supabase client
-└── auth.ts                 # Auth helpers
+├── supabase.ts               # Supabase client
+└── auth.ts                   # Auth helpers
 ```
 
 ---
 
-## Testing Payments via Stripe
+## Testing Payments
 
-Use Stripe's test card:
+Use Stripe's test card in checkout:
 
 - **Card number:** `4242 4242 4242 4242`
 - **Expiry:** any future date
