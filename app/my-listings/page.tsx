@@ -49,4 +49,12 @@ export default function MyListingsPage() {
     );
     setUpdating(null);
   }
+
+  async function deleteListing(id: number) {
+    if (!confirm("Delete this listing?")) return;
+    setUpdating(id);
+    await supabase.from("listings").delete().eq("id", id);
+    setListings((prev) => prev.filter((l) => l.id !== id));
+    setUpdating(null);
+  }
 }
