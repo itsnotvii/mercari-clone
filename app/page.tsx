@@ -163,6 +163,16 @@ export default function Home() {
                   >
                     Offers
                   </Link>
+                  <Link
+                    href="/my-listings"
+                    className="text-xs font-semibold px-3 py-2 rounded-xl transition-all"
+                    style={{
+                      background: s("rgba(0,0,0,0.05)", "rgba(255,255,255,0.08)"),
+                      color: s("rgba(0,0,0,0.5)", "rgba(255,255,255,0.5)"),
+                    }}
+                  >
+                    My Listings
+                  </Link>
                   <button
                     onClick={handleSignOut}
                     className="text-xs font-semibold px-3 py-2 rounded-xl transition-all"
