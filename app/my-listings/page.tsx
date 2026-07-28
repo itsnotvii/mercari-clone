@@ -29,4 +29,24 @@ export default function MyListingsPage() {
       else fetchListings(user.id);
     });
   }, [router]);
+
+  async function fetchListings(userId: string) {
+    const { data, error } = await supabase
+      .from("listings")
+      .select("*")
+      .eq("seller_id", userId)
+      .order("created_at", { ascending: false });
+    
+    if (!error && data) setListings(data);
+    setLoading(false);
+  }
+
+  async function toggleSold(id: number, currentSold: boolean) {
+    setUpdating(id);
+    await supabase.from("listings").update({ sold: !currentSold }).eq("id", id);
+    setListings((prev) => 
+      prev.map((l) => (l.id === id ? { ...l, sold: !currentSold }: l))
+    );
+    setUpdating(null);
+  }
 }
