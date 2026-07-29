@@ -70,11 +70,38 @@ export default function Banner() {
             <h2 className="text-2xl font-black text-white mb-1 max-w-xs leading-tight">
               {listing.title}
             </h2>
+            <p className="text-white/70 text-sm mb-4">{listing.condition} · {listing.category}</p>
+            <p className="text-3xl font-black text-white">${listing.price}</p>
           </div>
+          <div className="absolite bottom-4 left-8 flex gap-2">
+            {listings.map((_, i) => (
+              <button
+                key={i}
+                onClick={(e) => { e.preventDefault(); setCurrent(i); }}
+                className="h-2 rounded-full transition-all"
+                style={{
+                  background: i === current ? "#fff" : "rgba(255,255,255,0.4)",
+                  width: i === current ? "20px" : "8px",
+                }}
+              />
+            ))}
+          </div>
+          <button
+            onClick={(e) => { e.preventDefault(); setCurrent((current - 1 + listings.length) % listings.length); }}
+            className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-white text-xl opacity-0 group-hover:opacity-100 transition-opacity"
+            style={{ background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px" }}
+          >
+            ‹
+          </button>
+          <button 
+            onClick={(e) => { e.preventDefault(); setCurrent((current + 1) % listings.length); }}
+            className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-white text-xl opacity-0 group-hover:opacity-100 transition-opacity"
+            style={{ background: "rgba(0,0,0,0.4", backdropFilter: "blur(8px)" }}
+          >
+            ›
+          </button>
         </div>
       </Link>
     </div>
-  )
-
-
+  );
 }
