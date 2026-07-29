@@ -1,0 +1,146 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { supabase } from "@/lib/supabase";
+
+const categories = ["Electronics", "Sneakers", "Clothing", "Gaming", "Home", "Bags"];
+const conditions = ["New", "Like New", "Good", "Fair"];
+
+export default function SellPage() {
+  const router = useRouter();
+  const [userId, setUserId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [generating, setGenerating] = useState(false);
+  const [error, setError] = useState("");
+  const [form, setForm] = useState({ title: "", price: "", category: "", condition: "", description: "" });
+  const [image, setImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) router.push("/auth");
+      else setUserId(user.id);
+    });
+  }, [router]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) { setImage(file); setImagePreview(URL.createObjectURL(file)); }
+  };
+
+  const handleGenerate = async () => {
+    if (!image) return;
+    setGenerating(true);
+    setError("");
+    try {
+      const reader = new FileReader();
+      reader.readAsDataURL(image);
+      reader.onload = async () => {
+        const base64 = (reader.result as string).split(",")[1];
+        const res = await fetch("/api/generate-listing", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ imageBase64: base64, mediaType: image.type }),
+        });
+        const data = await res.json();
+        if (data.error) throw new Error(data.error);
+        setForm({ title: data.title || "", price: String(data.price || ""), category: data.category || "", condition: data.condition || "", description: data.description || "" });
+        setGenerating(false);
+      };
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Generation failed");
+      setGenerating(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!userId) return;
+    setLoading(true);
+    setError("");
+    try {
+      let imageUrl = null;
+      if (image) {
+        const ext = image.name.split(".").pop();
+        const path = `${userId}/${Date.now()}.${ext}`;
+        const { error: uploadError } = await supabase.storage.from("listing-images").upload(path, image);
+        if (uploadError) throw uploadError;
+        const { data: urlData } = supabase.storage.from("listing-images").getPublicUrl(path);
+        imageUrl = urlData.publicUrl;
+      }
+      const { error: insertError } = await supabase.from("listings").insert({
+        title: form.title, price: Number(form.price), category: form.category,
+        condition: form.condition, description: form.description, image_url: imageUrl, seller_id: userId,
+      });
+      if (insertError) throw insertError;
+      router.push("/");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <nav className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-4">
+          <Link href="/" className="text-2xl font-bold text-red-500">mercari</Link>
+        </div>
+      </nav>
+      <main className="max-w-lg mx-auto px-4 py-8">
+        <h1 className="text-2xl font-bold mb-6">List an item</h1>
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm p-6 space-y-5">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Photo</label>
+            <div className="w-full h-48 border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center cursor-pointer overflow-hidden" onClick={() => document.getElementById("image-input")?.click()}>
+              {imagePreview ? <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" /> : <div className="text-center"><p className="text-3xl mb-1">📷</p><p className="text-xs text-gray-400">Click to upload a photo</p></div>}
+            </div>
+            <input id="image-input" type="file" accept="image/*" onChange={handleImage} className="hidden" />
+          </div>
+          {image && (
+            <button type="button" onClick={handleGenerate} disabled={generating} className="w-full py-3 rounded-full font-medium text-sm transition flex items-center justify-center gap-2" style={{ background: generating ? "rgba(0,0,0,0.05)" : "linear-gradient(135deg, #6366f1, #8b5cf6)", color: generating ? "rgba(0,0,0,0.4)" : "#fff" }}>
+              {generating ? <><span className="animate-spin">⏳</span> Generating...</> : <>✨ Generate listing with AI</>}
+            </button>
+          )}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
+            <input name="title" value={form.title} onChange={handleChange} required placeholder="What are you selling?" className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-red-400" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
+            <input name="price" value={form.price} onChange={handleChange} required type="number" placeholder="0" className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-red-400" />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+            <select name="category" value={form.category} onChange={handleChange} required className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-red-400">
+              <option value="">Select a category</option>
+              {categories.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Condition</label>
+            <select name="condition" value={form.condition} onChange={handleChange} required className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-red-400">
+              <option value="">Select condition</option>
+              {conditions.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <textarea name="description" value={form.description} onChange={handleChange} placeholder="Describe your item..." rows={4} className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-red-400 resize-none" />
+          </div>
+          {error && <p className="text-red-500 text-sm">{error}</p>}
+          <button type="submit" disabled={loading} className="w-full bg-red-500 text-white py-3 rounded-full font-medium hover:bg-red-600 transition disabled:opacity-50">
+            {loading ? "Listing..." : "List item"}
+          </button>
+        </form>
+      </main>
+    </div>
+  );
+}
