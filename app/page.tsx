@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { Listing } from "./types";
+import Banner from "./components/Banner";
 
 const categories = ["All", "Electronics", "Sneakers", "Clothing", "Gaming", "Home", "Bags"];
 type SortOption = "default" | "price-asc" | "price-desc" | "most-liked";
@@ -139,6 +140,9 @@ export default function Home() {
             <span className="ml-auto text-xs font-medium" style={{ color: s("rgba(0,0,0,0.35)", "rgba(255,255,255,0.35)") }}>{loading ? "Loading..." : `${filtered.length} results`}</span>
           </div>
         </div>
+
+        <Banner />
+
         <div className="max-w-7xl mx-auto px-6 pt-8 pb-4">
           <h2 className="text-3xl font-black tracking-tight" style={{ color: s("#0a0a0f", "#fff") }}>{activeCategory === "All" ? "All listings" : activeCategory}</h2>
         </div>
