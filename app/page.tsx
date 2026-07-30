@@ -106,7 +106,7 @@ export default function Home() {
             <span style={{ fontWeight: 800, fontSize: 16, color: text, letterSpacing: "-0.5px" }}>mercari</span>
           </Link>
 
-          {/* Search */}
+          {/* Search */} 
           <div style={{ flex: 1, position: "relative", maxWidth: 560 }}>
             <Search size={14} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: muted }} />
             <input
