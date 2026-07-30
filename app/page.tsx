@@ -92,6 +92,24 @@ export default function Home() {
   const input = dark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.04)";
 
   return (
-    
+    <div style={{ minHeight: "100vh", background: bg, fontFamily: "'DM Sans', sans-serif", color: text, transition: "background 0.3s" }}>
+
+      {/* Navbar */}
+      <nav style={{ position: "sticky", top: 0, zIndex: 20, background: dark ? "rgba(10,10,15,0.9)" : "rgba(255,255,255,0.9)", borderBottom: `1px solid ${border}`, backdropFilter: "blur(20px)" }}>
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px", height: 60, display: "flex", alignItems: "center", gap: 16 }}>
+
+
+          {/* Logo */}
+          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", flexShrink: 0 }}>
+            <div style={{ width: 28, height: 28, borderRadius: 8, background: "linear-gradient(135deg, #ff3b3b, #ff6b35)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+              <span style={{ color: "#fff", fontSize: 12, fontWeight: 900 }}>M</span>
+            </div>
+            <span style={{ fontWeight: 800, fontSize: 16, color: text, letterSpacing: "-0.5px" }}>mercari</span>
+          </Link>
+
+          
+        </div>
+      </nav>
+    </div>
   )
 }
