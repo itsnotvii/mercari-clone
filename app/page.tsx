@@ -21,7 +21,7 @@ export default function Home() {
   const [sort, setSort] = useState<SortOption>("default");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
-  const [liked, setLiked] = useState<number []>([]);
+  const [liked, setLiked] = useState<number[]>([]);
   const [showLikedOnly, setShowLikedOnly] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
@@ -32,10 +32,10 @@ export default function Home() {
 
   async function fetchListings() {
     const { data, error } = await supabase
-    .from("listings")
-    .select("*, profiles(username)")
-    .eq("sold", false)
-    .order("created_at", { ascending: false });
+      .from("listings")
+      .select("*, profiles(username)")
+      .eq("sold", false)
+      .order("created_at", { ascending: false });
 
     if (!error && data) {
       const mapped: Listing[] = data.map((l) => ({
@@ -97,7 +97,6 @@ export default function Home() {
       {/* Navbar */}
       <nav style={{ position: "sticky", top: 0, zIndex: 20, background: dark ? "rgba(10,10,15,0.9)" : "rgba(255,255,255,0.9)", borderBottom: `1px solid ${border}`, backdropFilter: "blur(20px)" }}>
         <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px", height: 60, display: "flex", alignItems: "center", gap: 16 }}>
-
 
           {/* Logo */}
           <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, textDecoration: "none", flexShrink: 0 }}>
@@ -172,7 +171,7 @@ export default function Home() {
       <Banner />
 
       {/* Filters */}
-      <div style={{ maxWidth: 1290, margin: "0 auto", padding: "20px 24px 0" }}>
+      <div style={{ maxWidth: 1280, margin: "0 auto", padding: "20px 24px 0" }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
             <h2 style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.5px" }}>
@@ -191,9 +190,89 @@ export default function Home() {
             </button>
 
             {/* Filters toggle */}
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 8, border: `1px solid ${border}`, background: input, color: muted, fontSize: 12, fontWeight: 600, cursor: "pointer" }}
+            >
+              <SlidersHorizontal size={13} /> Filters <ChevronDown size={12} style={{ transform: showFilters ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
+            </button>
+
+            {/* Sort */}
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as SortOption)}
+              style={{ padding: "7px 12px", borderRadius: 8, border: `1px solid ${border}`, background: input, color: muted, fontSize: 12, fontWeight: 600, cursor: "pointer", outline: "none" }}
+            >
+              <option value="default">Sort: Default</option>
+              <option value="price-asc">Price: Low to High</option>
+              <option value="price-desc">Price: High to Low</option>
+              <option value="most-liked">Most Liked</option>
+            </select>
           </div>
         </div>
+
+        {/* Expandable filters */}
+        {showFilters && (
+          <div style={{ marginTop: 12, padding: 16, borderRadius: 12, border: `1px solid ${border}`, background: card, display: "flex", alignItems: "center", gap: 12 }}>
+            <span style={{ fontSize: 12, color: muted, fontWeight: 600 }}>Price range</span>
+            <input type="number" placeholder="Min $" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} style={{ width: 80, padding: "6px 10px", borderRadius: 8, border: `1px solid ${border}`, background: input, color: text, fontSize: 12, outline: "none" }} />
+            <span style={{ color: muted, fontSize: 12 }}>—</span>
+            <input type="number" placeholder="Max $" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} style={{ width: 80, padding: "6px 10px", borderRadius: 8, border: `1px solid ${border}`, background: input, color: text, fontSize: 12, outline: "none" }} />
+            {(minPrice || maxPrice) && (
+              <button onClick={() => { setMinPrice(""); setMaxPrice(""); }} style={{ fontSize: 12, color: "#ff3b3b", fontWeight: 600, cursor: "pointer", background: "none", border: "none" }}>Clear</button>
+            )}
+          </div>
+        )}
       </div>
+
+      {/* Grid */}
+      <main style={{ maxWidth: 1280, margin: "0 auto", padding: "16px 24px 48px" }}>
+        {loading ? (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 16 }}>
+            {[...Array(12)].map((_, i) => (
+              <div key={i} style={{ borderRadius: 14, overflow: "hidden", background: card, border: `1px solid ${border}` }}>
+                <div style={{ aspectRatio: "1", background: input }} />
+                <div style={{ padding: 12, display: "flex", flexDirection: "column", gap: 6 }}>
+                  <div style={{ height: 12, borderRadius: 6, background: input }} />
+                  <div style={{ height: 12, width: "50%", borderRadius: 6, background: input }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "80px 0" }}>
+            <Search size={32} style={{ color: muted, margin: "0 auto 12px" }} />
+            <p style={{ color: muted, fontSize: 14, fontWeight: 500 }}>No listings found</p>
+          </div>
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))", gap: 16 }}>
+            {filtered.map((listing) => (
+              <Link href={`/listings/${listing.id}`} key={listing.id} style={{ textDecoration: "none" }}>
+                <div
+                  style={{ borderRadius: 14, overflow: "hidden", background: card, border: `1px solid ${border}`, boxShadow: dark ? "0 4px 24px rgba(0,0,0,0.3)" : "0 1px 8px rgba(0,0,0,0.06)", transition: "transform 0.2s, box-shadow 0.2s", cursor: "pointer" }}
+                  onMouseEnter={(e) => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(-2px)"; (e.currentTarget as HTMLDivElement).style.boxShadow = dark ? "0 8px 32px rgba(0,0,0,0.4)" : "0 4px 20px rgba(0,0,0,0.1)"; }}
+                  onMouseLeave={(e) => { (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; (e.currentTarget as HTMLDivElement).style.boxShadow = dark ? "0 4px 24px rgba(0,0,0,0.3)" : "0 1px 8px rgba(0,0,0,0.06)"; }}
+                >
+                  <div style={{ position: "relative", aspectRatio: "1", overflow: "hidden" }}>
+                    <Image src={listing.image} alt={listing.title} fill style={{ objectFit: "cover" }} />
+                    <button
+                      onClick={(e) => toggleLike(e, listing.id)}
+                      style={{ position: "absolute", top: 8, right: 8, width: 30, height: 30, borderRadius: "50%", background: "rgba(0,0,0,0.35)", backdropFilter: "blur(8px)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+                    >
+                      <Heart size={13} fill={liked.includes(listing.id) ? "#ff3b3b" : "none"} color={liked.includes(listing.id) ? "#ff3b3b" : "#fff"} />
+                    </button>
+                  </div>
+                  <div style={{ padding: "10px 12px 12px" }}>
+                    <p style={{ fontSize: 12, fontWeight: 600, color: text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: 4 }}>{listing.title}</p>
+                    <p style={{ fontSize: 15, fontWeight: 800, color: text, marginBottom: 6 }}>${listing.price}</p>
+                    <span style={{ fontSize: 11, fontWeight: 500, color: muted, background: input, padding: "2px 8px", borderRadius: 6 }}>{listing.condition}</span>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </main>
     </div>
-  )
+  );
 }
