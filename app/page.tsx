@@ -150,7 +150,50 @@ export default function Home() {
         </div>
 
         {/* Category pills */}
+        <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px 12px", display: "flex", gap: 6, overflowX: "auto" }}>
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              style={{
+                whiteSpace: "nowrap", padding: "5px 14px", borderRadius: 20, fontSize: 12, fontWeight: 600, cursor: "pointer", transition: "all 0.15s",
+                background: activeCategory === cat ? "linear-gradient(135deg, #ff3b3b, #ff6b35)" : input,
+                color: activeCategory === cat ? "#fff" : muted,
+                border: `1px solid ${activeCategory === cat ? "transparent" : border}`,
+              }}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
       </nav>
+
+      {/* Banner */}
+      <Banner />
+
+      {/* Filters */}
+      <div style={{ maxWidth: 1290, margin: "0 auto", padding: "20px 24px 0" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <h2 style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.5px" }}>
+              {activeCategory === "All" ? "All listings" : activeCategory}
+            </h2>
+            <span style={{ fontSize: 12, color: muted, fontWeight: 500 }}>{loading ? "" : `${filtered.length} items`}</span>
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            {/* Liked filter */}
+            <button
+              onClick={() => setShowLikedOnly(!showLikedOnly)}
+              style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 8, border: `1px solid ${showLikedOnly ? "#ff3b3b" : border}`, background: showLikedOnly ? "rgba(255,59,59,0.08)" : input, color: showLikedOnly ? "#ff3b3b" : muted, fontSize: 12, fontWeight: 600, cursor: "pointer" }}
+            >
+              <Heart size={13} fill={showLikedOnly ? "#ff3b3b" : "none"} /> Saved
+            </button>
+
+            {/* Filters toggle */}
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
