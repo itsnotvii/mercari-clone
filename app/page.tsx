@@ -107,6 +107,18 @@ export default function Home() {
             <span style={{ fontWeight: 800, fontSize: 16, color: text, letterSpacing: "-0.5px" }}>mercari</span>
           </Link>
 
+          {/* Search */}
+          <div style={{ flex: 1, position: "relative", maxWidth: 560 }}>
+            <Search size={14} style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", color: muted }} />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search listings..."
+              style={{ width: "100%", paddingLeft: 36, paddingRight: 16, paddingTop: 9, paddingBottom: 9, borderRadius: 10, border: `1px solid ${border}`, background: input, color: text, fontSize: 13, outline: "none", boxSizing: "border-box" }}
+            />
+          </div>
+
           
         </div>
       </nav>
