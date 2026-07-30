@@ -119,8 +119,37 @@ export default function Home() {
             />
           </div>
 
-          
+          {/* Right side */}
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "auto", flexShrink: 0 }}>
+            <button onClick={() => setDark(!dark)} style={{ width: 34, height: 34, borderRadius: 8, border: `1px solid ${border}`, background: input, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: muted }}>
+              {dark ? <Sun size={14} /> : <Moon size={14} />}
+            </button>
+
+            {user ? (
+              <>
+                <Link href="/offers" style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 8, border: `1px solid ${border}`, background: input, color: muted, fontSize: 12, fontWeight: 600, textDecoration: "none" }}>
+                  <Tag size={13} /> Offers
+                </Link>
+                <Link href="/my-listings" style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 8, border: `1px solid ${border}`, background: input, color: muted, fontSize: 12, fontWeight: 600, textDecoration: "none" }}>
+                  <LayoutList size={13} /> Listings
+                </Link>
+                <button onClick={handleSignOut} style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 8, border: `1px solid ${border}`, background: input, color: muted, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
+                  <LogOut size={13} /> Sign out
+                </button>
+              </>
+            ) : (
+              <Link href="/auth" style={{ padding: "7px 14px", borderRadius: 8, border: `1px solid ${border}`, background: input, color: muted, fontSize: 12, fontWeight: 600, textDecoration: "none" }}>
+                Sign in
+              </Link>
+            )}
+
+            <Link href="/sell" style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 16px", borderRadius: 8, background: "linear-gradient(135deg, #ff3b3b, #ff6b35)", color: "#fff", fontSize: 13, fontWeight: 700, textDecoration: "none", boxShadow: "0 2px 12px rgba(255,59,59,0.25)" }}>
+              + Sell
+            </Link>
+          </div>
         </div>
+
+        {/* Category pills */}
       </nav>
     </div>
   )
