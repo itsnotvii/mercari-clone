@@ -1,4 +1,4 @@
-"use client";
+ "use client";
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import { ArrowLeft, Camera, Save, Lock, Mail } from "lucide-react";
 
-export default function SettingPage() {
+export default function SettingsPage() {
   const router = useRouter();
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -32,10 +32,10 @@ export default function SettingPage() {
       setForm((f) => ({ ...f, email: user.email || "" }));
 
       const { data: profile } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("id", user.id)
-      .single();
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
 
       if (profile) {
         setForm((f) => ({ ...f, username: profile.username || "", bio: profile.bio || "" }));
@@ -53,7 +53,7 @@ export default function SettingPage() {
     }
   };
 
-  const handlerSaveProfile = async () => {
+  const handleSaveProfile = async () => {
     if (!userId) return;
     setSaving(true);
     setMessage("");
@@ -66,7 +66,7 @@ export default function SettingPage() {
         const path = `avatars/${userId}.${ext}`;
         const { error: uploadError } = await supabase.storage
           .from("listing-images")
-          .upload(path, avatarFile, {upsert: true });
+          .upload(path, avatarFile, { upsert: true });
         if (uploadError) throw uploadError;
         const { data: urlData } = supabase.storage
           .from("listing-images")
@@ -92,9 +92,9 @@ export default function SettingPage() {
     setSaving(true);
     setMessage("");
     try {
-      const { error } await supabase.auth.updateUser({ email: form.email });
+      const { error } = await supabase.auth.updateUser({ email: form.email });
       if (error) throw error;
-      setMessage("Confirmation send to new email!");
+      setMessage("Confirmation sent to new email!");
     } catch (err: unknown) {
       setMessage(err instanceof Error ? err.message : "Something went wrong");
     } finally {
@@ -146,7 +146,7 @@ export default function SettingPage() {
 
         {message && (
           <div style={{ marginBottom: 20, padding: "12px 16px", borderRadius: 10, background: message.includes("wrong") || message.includes("match") ? "rgba(255,59,59,0.08)" : "rgba(34,197,94,0.08)", border: `1px solid ${message.includes("wrong") || message.includes("match") ? "rgba(255,59,59,0.2)" : "rgba(34,197,94,0.2)"}`, color: message.includes("wrong") || message.includes("match") ? "#ff3b3b" : "#16a34a", fontSize: 13, fontWeight: 500 }}>
-          {message}
+            {message}
           </div>
         )}
 
@@ -163,85 +163,112 @@ export default function SettingPage() {
                 ) : (
                   <span style={{ color: "#fff", fontSize: 24, fontWeight: 800 }}>{form.username?.[0]?.toUpperCase() || "?"}</span>
                 )}
+              </div>
+              <button
+                onClick={() => document.getElementById("avatar-input")?.click()}
+                style={{ position: "absolute", bottom: 0, right: 0, width: 24, height: 24, borderRadius: "50%", background: "#0a0a0f", border: "2px solid #fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+              >
+                <Camera size={11} color="#fff" />
+              </button>
+              <input id="avatar-input" type="file" accept="image/*" onChange={handleAvatar} style={{ display: "none" }} />
             </div>
-            <button
-              onClick={() => document.getElementById("avatar-input")?.click()}
-              style={{ position: "absolute", bottom: 0, right: 0, width: 24, height: 24, borderRadius: "50%", background: "#0a0a0f", border: "2px solid #fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
-            >
-              <Camera size={11} color="#fff" />
-            </button>
-            <input id="avatar-input" type="file" accept="image/*" onChange={handleAvatar} style={{ display: "none" }} />
+            <div>
+              <p style={{ fontSize: 15, fontWeight: 700, color: "#0a0a0f" }}>{form.username || "No username"}</p>
+              <p style={{ fontSize: 12, color: muted, marginTop: 2 }}>Click the camera to update your photo</p>
+            </div>
           </div>
-          <div>
-            <p style={{ fontSize: 15, fontWeight: 700, color: "#0a0a0f" }}>{form.username || "No username"}</p>
-            <p style={{ fontSize: 12, color: muted, marginTop: 2 }}>Click the camera to update your photo</p>
+
+          {/* Username */}
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: muted, marginBottom: 6 }}>Username</label>
+            <input
+              value={form.username}
+              onChange={(e) => setForm({ ...form, username: e.target.value })}
+              placeholder="your_username"
+              style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: `1px solid ${border}`, background: input, fontSize: 13, outline: "none", boxSizing: "border-box", color: "#0a0a0f" }}
+            />
           </div>
+
+          {/* Bio */}
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: muted, marginBottom: 6 }}>Bio</label>
+            <textarea
+              value={form.bio}
+              onChange={(e) => setForm({ ...form, bio: e.target.value })}
+              placeholder="Tell people a bit about yourself..."
+              rows={3}
+              style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: `1px solid ${border}`, background: input, fontSize: 13, outline: "none", boxSizing: "border-box", resize: "none", color: "#0a0a0f", fontFamily: "'DM Sans', sans-serif" }}
+            />
+          </div>
+
+          <button
+            onClick={handleSaveProfile}
+            disabled={saving}
+            style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 18px", borderRadius: 10, background: "#0a0a0f", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", border: "none", opacity: saving ? 0.5 : 1 }}
+          >
+            <Save size={13} /> {saving ? "Saving..." : "Save profile"}
+          </button>
         </div>
 
-        {/* Username */}
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: muted, marginBottom: 6 }}>Username</label>
-          <input
-            value={form.username}
-            onChange={(e) => setForm({ ...form, username: e.target.value })}
-            placeholder="your_username"
-            style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: `1px solid ${border}`, background: input, fontSize: 13, outline: "none", boxSizing: "border-box", color: "#0a0a0f" }}
-          />
+        {/* Email */}
+        <div style={{ background: "#fff", borderRadius: 16, border: `1px solid ${border}`, padding: 24, marginBottom: 16 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
+            <Mail size={15} color={muted} />
+            <h2 style={{ fontSize: 15, fontWeight: 700 }}>Email address</h2>
+          </div>
+          <div style={{ marginBottom: 16 }}>
+            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: muted, marginBottom: 6 }}>Email</label>
+            <input
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: `1px solid ${border}`, background: input, fontSize: 13, outline: "none", boxSizing: "border-box", color: "#0a0a0f" }}
+            />
+          </div>
+          <button
+            onClick={handleChangeEmail}
+            disabled={saving}
+            style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 18px", borderRadius: 10, background: "#0a0a0f", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", border: "none", opacity: saving ? 0.5 : 1 }}
+          >
+            <Save size={13} /> Update email
+          </button>
         </div>
 
-        {/* Bio */}
-        <div style={{ marginBottom: 20 }}>
-          <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: muted, marginBottom: 6}}>Bio</label>
-          <textarea
-            value={form.bio}
-            onChange={(e) => setForm({ ...form, bio: e.target.value })}
-            placeholder="Tell people a bit about yourself..."
-            rows={3}
-            style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: `1px solid ${border}`, background: input, fontSize: 13, outline: "none", boxSizing: "border-box", resize: "none", color: "#0a0a0f", fontFamily: "'DM Sans', sans-serif" }}
-          />
+        {/* Password */}
+        <div style={{ background: "#fff", borderRadius: 16, border: `1px solid ${border}`, padding: 24 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
+            <Lock size={15} color={muted} />
+            <h2 style={{ fontSize: 15, fontWeight: 700 }}>Password</h2>
+          </div>
+          <div style={{ marginBottom: 12 }}>
+            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: muted, marginBottom: 6 }}>New password</label>
+            <input
+              type="password"
+              value={passwords.new}
+              onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
+              placeholder="••••••••"
+              style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: `1px solid ${border}`, background: input, fontSize: 13, outline: "none", boxSizing: "border-box", color: "#0a0a0f" }}
+            />
+          </div>
+          <div style={{ marginBottom: 20 }}>
+            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: muted, marginBottom: 6 }}>Confirm new password</label>
+            <input
+              type="password"
+              value={passwords.confirm}
+              onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
+              placeholder="••••••••"
+              style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: `1px solid ${border}`, background: input, fontSize: 13, outline: "none", boxSizing: "border-box", color: "#0a0a0f" }}
+            />
+          </div>
+          <button
+            onClick={handleChangePassword}
+            disabled={saving}
+            style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 18px", borderRadius: 10, background: "#0a0a0f", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", border: "none", opacity: saving ? 0.5 : 1 }}
+          >
+            <Lock size={13} /> Update password
+          </button>
         </div>
-
-        <button
-          onClick={handlerSaveProfile}
-          disabled={saving}
-          style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 18px", borderRadius: 10, background: "#0a0a0f", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", border: "none", opacity: saving ? 0.5 : 1 }}
-        >
-          <Save size={13} /> {saving ? "Saving..." : "Save profile"}
-        </button>
-      </div>
-
-      {/* Email */}
-      <div style={{ background: "#fff", borderRadius: 16, border: `1px solid ${border}`, padding: 24, marginBottom: 16 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
-          <Mail size={15} color={muted} />
-          <h2 style={{ fontSize: 15, fontWeight: 700 }}>Email address</h2>
-        </div>
-        <div style={{ marginBottom: 16 }}>
-          <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: muted, marginBottom: 6 }}>Email</label>
-          <input
-            type="email"
-            value={form.email}
-            onChange={(e) => setForm({ ...form, email: e.target.value })}
-            style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: `1px solid ${border}`, background: input, fontSize: 13, outline: "none", boxSizing: "border-box", color: "#0a0a0f" }}
-          />
-        </div>
-        <button
-          onClick={handleChangeEmail}
-          disabled={saving}
-          style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 18px", borderRadius: 10, background: "#0a0a0f", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", border: "none", opacity: saving ? 0.5 : 1 }}
-        >
-          <Save size={13} /> Update email
-        </button>
-      </div>
-
-      {/* Password */}
-      <div style={{ background: "#fff", borderRadius: 16, border: `1px solid ${border}`, padding: 24}}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
-          <Lock size={15} color={muted} />
-          <h2 style={{ fontSize: 15, fontWeight: 700 }}>Password</h2>
-        </div>
-      </div>
       </main>
     </div>
-  )
+  );
 }
