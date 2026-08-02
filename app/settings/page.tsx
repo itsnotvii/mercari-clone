@@ -210,6 +210,23 @@ export default function SettingPage() {
         </button>
       </div>
 
+      {/* Email */}
+      <div style={{ background: "#fff", borderRadius: 16, border: `1px solid ${border}`, padding: 24, marginBottom: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
+          <Mail size={15} color={muted} />
+          <h2 style={{ fontSize: 15, fontWeight: 700 }}>Email address</h2>
+        </div>
+        <div style={{ marginBottom: 16 }}>
+          <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: muted, marginBottom: 6 }}>Email</label>
+          <input
+            type="email"
+            value={form.email}
+            onChange={(e) => setForm({ ...form, email: e.target.value })}
+            style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: `1px solid ${border}`, background: input, fontSize: 13, outline: "none", boxSizing: "border-box", color: "#0a0a0f" }}
+          />
+        </div>
+      </div>
+
       </main>
     </div>
   )
