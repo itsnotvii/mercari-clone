@@ -225,8 +225,22 @@ export default function SettingPage() {
             style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: `1px solid ${border}`, background: input, fontSize: 13, outline: "none", boxSizing: "border-box", color: "#0a0a0f" }}
           />
         </div>
+        <button
+          onClick={handleChangeEmail}
+          disabled={saving}
+          style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 18px", borderRadius: 10, background: "#0a0a0f", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", border: "none", opacity: saving ? 0.5 : 1 }}
+        >
+          <Save size={13} /> Update email
+        </button>
       </div>
 
+      {/* Password */}
+      <div style={{ background: "#fff", borderRadius: 16, border: `1px solid ${border}`, padding: 24}}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
+          <Lock size={15} color={muted} />
+          <h2 style={{ fontSize: 15, fontWeight: 700 }}>Password</h2>
+        </div>
+      </div>
       </main>
     </div>
   )
