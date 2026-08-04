@@ -1,36 +1,194 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mercari Clone
+
+A full-stack peer-to-peer marketplace app inspired by Mercari. Built with Next.js 16, TypeScript, Supabase, Stripe, and the Anthropic Claude API.
+
+**Live demo:** [mercari-clone-beige.vercel.app](https://mercari-clone-beige.vercel.app)  
+**Repo:** [github.com/itsnotvii/mercari-clone](https://github.com/itsnotvii/mercari-clone)
+
+---
+
+## Features
+
+- **AI listing generator** — upload a photo and Claude automatically writes the title, description, category, condition, and suggested price
+- **Authentication** — email/password sign up and login via Supabase Auth
+- **Listings** — create, browse, search, and filter by category, price range, and condition
+- **Image upload** — photos stored in Supabase Storage
+- **Stripe payments** — full checkout flow powered by Stripe Checkout
+- **Make an Offer** — buyers send offers with quick price suggestions; sellers accept or decline
+- **Offers dashboard** — sellers manage all incoming offers in one place
+- **My Listings** — sellers view, manage, mark as sold, relist, or delete their listings
+- **User profiles** — public seller pages showing all active listings
+- **Profile settings** — update username, bio, avatar, email, and password
+- **Featured banner** — rotating hero banner showcasing top liked listings
+- **Dark mode** — full light/dark theme toggle with Lucide icons
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 16 (App Router, TypeScript) |
+| Styling | Tailwind CSS v4 + inline styles |
+| Icons | Lucide React |
+| Database | Supabase (PostgreSQL) |
+| Auth | Supabase Auth |
+| Storage | Supabase Storage |
+| AI | Anthropic Claude API (`claude-sonnet-4-6`) |
+| Payments | Stripe Checkout |
+| Deployment | Vercel |
+
+---
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+
+- A [Supabase](https://supabase.com) account
+- An [Anthropic](https://console.anthropic.com) API key
+- A [Stripe](https://stripe.com) account
+
+### Installation
+
+```bash
+git clone https://github.com/itsnotvii/mercari-clone.git
+cd mercari-clone
+npm install
+```
+
+### Environment Variables
+
+Create a `.env.local` file in the root:
+
+```bash
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+ANTHROPIC_API_KEY=your_anthropic_api_key
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
+STRIPE_SECRET_KEY=sk_test_...
+NEXT_PUBLIC_BASE_URL=http://localhost:3000
+```
+
+### Database Setup
+
+Run the following in your Supabase SQL editor:
+
+```sql
+create table profiles (
+  id uuid references auth.users on delete cascade,
+  username text unique not null,
+  avatar_url text,
+  bio text,
+  created_at timestamp with time zone default timezone('utc', now()),
+  primary key (id)
+);
+
+create table listings (
+  id bigint generated always as identity primary key,
+  title text not null,
+  description text,
+  price numeric not null,
+  category text not null,
+  condition text not null,
+  image_url text,
+  seller_id uuid references profiles(id) on delete cascade not null,
+  likes integer default 0,
+  sold boolean default false,
+  created_at timestamp with time zone default timezone('utc', now())
+);
+
+create table offers (
+  id bigint generated always as identity primary key,
+  listing_id bigint references listings(id) on delete cascade not null,
+  buyer_id uuid references profiles(id) on delete cascade not null,
+  seller_id uuid references profiles(id) on delete cascade not null,
+  amount numeric not null,
+  status text default 'pending' check (status in ('pending', 'accepted', 'declined')),
+  created_at timestamp with time zone default timezone('utc', now())
+);
+
+-- RLS
+alter table listings enable row level security;
+alter table profiles enable row level security;
+alter table offers enable row level security;
+
+create policy "Listings are viewable by everyone" on listings for select using (true);
+create policy "Users can insert their own listings" on listings for insert with check (auth.uid() = seller_id);
+create policy "Users can update their own listings" on listings for update using (auth.uid() = seller_id);
+create policy "Users can delete their own listings" on listings for delete using (auth.uid() = seller_id);
+
+create policy "Profiles are viewable by everyone" on profiles for select using (true);
+create policy "Users can insert their own profile" on profiles for insert with check (auth.uid() = id);
+create policy "Users can update their own profile" on profiles for update using (auth.uid() = id);
+
+create policy "Buyers can insert offers" on offers for insert with check (auth.uid() = buyer_id);
+create policy "Buyers and sellers can view their offers" on offers for select using (auth.uid() = buyer_id or auth.uid() = seller_id);
+create policy "Sellers can update offer status" on offers for update using (auth.uid() = seller_id);
+
+-- Storage
+create policy "Users can upload listing images" on storage.objects
+  for insert with check (bucket_id = 'listing-images' AND auth.role() = 'authenticated');
+
+create policy "Listing images are publicly viewable" on storage.objects
+  for select using (bucket_id = 'listing-images');
+```
+
+Create a **public** Storage bucket named `listing-images` in your Supabase dashboard.
+
+### Run Locally
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## How the AI Listing Generator Works
 
-## Learn More
+1. Seller uploads a photo on the `/sell` page
+2. The image is base64-encoded and sent to `/api/generate-listing`
+3. Claude analyzes the image and returns JSON with `title`, `description`, `category`, `condition`, and `price`
+4. The form auto-fills instantly — everything is editable before submitting
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+app/
+├── api/
+│   ├── generate-listing/     # Claude AI vision endpoint
+│   └── create-checkout/      # Stripe checkout session endpoint
+├── auth/                     # Login / sign up
+├── components/
+│   └── Banner.tsx            # Rotating featured listings banner
+├── listings/[id]/            # Listing detail + buy/offer buttons
+├── my-listings/              # Seller listing management
+├── offers/                   # Incoming offers dashboard
+├── profile/[username]/       # Public seller profile
+├── sell/                     # Create listing with AI generation
+├── settings/                 # Profile settings (avatar, bio, email, password)
+└── success/                  # Post-purchase confirmation
+lib/
+├── supabase.ts               # Supabase client
+└── auth.ts                   # Auth helpers
+```
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Testing Payments
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Use Stripe's test card:
+
+- **Card number:** `4242 4242 4242 4242`
+- **Expiry:** any future date
+- **CVC:** any 3 digits
+
+---
+
+## License
+
+MIT
