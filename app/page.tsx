@@ -24,6 +24,7 @@ export default function Home() {
   const [liked, setLiked] = useState<number[]>([]);
   const [showLikedOnly, setShowLikedOnly] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   useEffect(() => {
     fetchListings();
@@ -125,18 +126,47 @@ export default function Home() {
             </button>
 
             {user ? (
-              <>
-                <Link href="/offers" style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 8, border: `1px solid ${border}`, background: input, color: muted, fontSize: 12, fontWeight: 600, textDecoration: "none" }}>
-                  <Tag size={13} /> Offers
-                </Link>
-                <Link href="/my-listings" style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 8, border: `1px solid ${border}`, background: input, color: muted, fontSize: 12, fontWeight: 600, textDecoration: "none" }}>
-                  <LayoutList size={13} /> Listings
-                </Link>
-                <button onClick={handleSignOut} style={{ display: "flex", alignItems: "center", gap: 6, padding: "7px 12px", borderRadius: 8, border: `1px solid ${border}`, background: input, color: muted, fontSize: 12, fontWeight: 600, cursor: "pointer" }}>
-                  <LogOut size={13} /> Sign out
-                </button>
-              </>
-            ) : (
+            <div style={{ position: "relative" }}>
+              <button
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
+                style={{ width: 34, height: 34, borderRadius: "50%", background: "linear-gradient(135deg, #ff3b3b, #ff6b35)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#fff", fontWeight: 800, fontSize: 13 }}
+              >
+                {user.email?.[0].toUpperCase()}
+              </button>
+              {showProfileMenu && (
+                <div
+                  style={{ position: "absolute", top: 42, right: 0, background: card, border: `1px solid ${border}`, borderRadius: 12, padding: 6, minWidth: 180, boxShadow: "0 8px 32px rgba(0,0,0,0.12)", zIndex: 100 }}
+                  onMouseLeave={() => setShowProfileMenu(false)}
+                >
+                  {[
+                    { label: "My Listings", href: "/my-listings", icon: <LayoutList size={13} /> },
+                    { label: "Offers", href: "/offers", icon: <Tag size={13} /> },
+                    { label: "Settings", href: "/settings", icon: <Settings size={13} /> },
+                  ].map((item) => (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setShowProfileMenu(false)}
+                      style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", borderRadius: 8, color: text, fontSize: 13, fontWeight: 500, textDecoration: "none" }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = input)}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                    >
+                      {item.icon} {item.label}
+                    </Link>
+                  ))}
+                  <div style={{ height: 1, background: border, margin: "4px 0" }} />
+                  <button
+                    onClick={() => { handleSignOut(); setShowProfileMenu(false); }}
+                    style={{ display: "flex", alignItems: "center", gap: 8, padding: "8px 10px", borderRadius: 8, color: "#ff3b3b", fontSize: 13, fontWeight: 500, cursor: "pointer", background: "none", border: "none", width: "100%" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,59,59,0.06)")}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                  >
+                    <LogOut size={13} /> Sign out
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
               <Link href="/auth" style={{ padding: "7px 14px", borderRadius: 8, border: `1px solid ${border}`, background: input, color: muted, fontSize: 12, fontWeight: 600, textDecoration: "none" }}>
                 Sign in
               </Link>
