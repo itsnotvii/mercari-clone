@@ -9,7 +9,7 @@ A full-stack peer-to-peer marketplace app inspired by Mercari. Built with Next.j
 
 ## Features
 
-- **AI listing generator** — upload a photo and Claude automatically writes the title, description, category, condition, and suggested price
+- **AI listing generator** — upload a photo and Claude AI automatically writes the title, description, category, condition, and suggested price
 - **Authentication** — email/password sign up and login via Supabase Auth
 - **Listings** — create, browse, search, and filter by category, price range, and condition
 - **Image upload** — photos stored in Supabase Storage
