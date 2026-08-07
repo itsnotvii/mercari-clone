@@ -33,12 +33,13 @@ export default function RecentlyViewed({ dark }: { dark: boolean }) {
 
   async function fetchListings(ids: number[]) {
     const { data } = await supabase
-    .from("listings")
-    .select("id, title, price, image_url, condition")
-    .in("id", ids)
-    .eq("sold", false);
+      .from("listings")
+      .select("id, title, price, image_url, condition")
+      .in("id", ids)
+      .eq("sold", false);
 
     if (data) {
+      // preserve the order they were viewed
       const ordered = ids
         .map((id) => data.find((l) => l.id === id))
         .filter(Boolean) as Listing[];
@@ -85,10 +86,15 @@ export default function RecentlyViewed({ dark }: { dark: boolean }) {
         ))}
         <button
           onClick={() => {
-            
+            localStorage.removeItem("recently_viewed");
+            setListings([]);
           }}
+          style={{ flexShrink: 0, alignSelf: "center", fontSize: 11.5, color: muted, background: "none", border: "none", cursor: "pointer", padding: "4px 8px", borderRadius: 6 }}
+        >
+          Clear
+        </button>
       </div>
+      <div style={{ height: 1, background: border, marginTop: 20 }} />
     </div>
-  )
-
+  );
 }
