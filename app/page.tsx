@@ -7,6 +7,7 @@ import { supabase } from "@/lib/supabase";
 import { Listing } from "./types";
 import { Search, Moon, Sun, Heart, SlidersHorizontal, ChevronDown, LogOut, Tag, LayoutList, Settings, PackageSearch } from "lucide-react";
 import Banner from "./components/Banner";
+import RecentlyViewed from "./components/RecentlyViewed";
 
 const categories = ["All", "Electronics", "Sneakers", "Clothing", "Gaming", "Home", "Bags"];
 type SortOption = "default" | "price-asc" | "price-desc" | "most-liked";
@@ -216,6 +217,9 @@ export default function Home() {
 
       {/* Banner */}
       <Banner />
+
+      {/* Recently viewed */}
+      <RecentlyViewed dark={dark} />
 
       {/* Filters bar */}
       <div style={{ maxWidth: 1400, margin: "0 auto", padding: "24px 32px 0" }}>

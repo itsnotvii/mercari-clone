@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
 import { supabase } from "@/lib/supabase";
+import { useEffect, useState } from "react";
 
 export default function BuyButton({ listingId, title, price, image, sellerId }: { listingId: number; title: string; price: number; image: string; sellerId: string; }) {
   const [buyLoading, setBuyLoading] = useState(false);
@@ -10,6 +10,15 @@ export default function BuyButton({ listingId, title, price, image, sellerId }: 
   const [offerLoading, setOfferLoading] = useState(false);
   const [offerStatus, setOfferStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+
+  useEffect(() => {
+  try {
+    const key = "recently_viewed";
+    const existing: number[] = JSON.parse(localStorage.getItem(key) || "[]");
+    const updated = [listingId, ...existing.filter((id) => id !== listingId)].slice(0, 6);
+    localStorage.setItem(key, JSON.stringify(updated));
+  } catch {}
+  }, [listingId]);
 
   const handleBuy = async () => {
     setBuyLoading(true);
