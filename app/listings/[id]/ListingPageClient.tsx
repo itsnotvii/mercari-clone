@@ -66,5 +66,18 @@ export default function ListingPageClient({ id }: { id: string }) {
     </div>
   );
 
-  
+  if (!listing) return (
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'DM Sans', sans-serif" }}>
+      <div style={{ textAlign: "center" }}>
+        <p style={{ fontSize: 48, marginBottom: 12 }}>😕</p>
+        <p style={{ fontSize: 16, fontWeight: 700, color: "#1a1a1a", marginBottom: 6 }}>Listing not found</p>
+        <Link href="/" style={{ fontSize: 13, color: "#ff3b3b", fontWeight: 600, textDecoration: "none" }}>← Back to listings</Link>
+      </div>
+    </div>
+  );
+
+  const seller = listing.profiles?.username || "unknown";
+  const image = listing.image_url || "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800";
+
+
 }
