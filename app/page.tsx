@@ -26,6 +26,8 @@ export default function Home() {
   const [showLikedOnly, setShowLikedOnly] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [suggestions, setSuggestions] = useState<Listing[]>([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   useEffect(() => {
     fetchListings();
@@ -110,16 +112,51 @@ export default function Home() {
 
           {/* Search */}
           <div style={{ flex: 1, position: "relative", maxWidth: 600 }}>
-            <Search size={14} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: muted, pointerEvents: "none" }} />
+            <Search size={14} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: muted, pointerEvents: "none", zIndex: 1 }} />
             <input
               type="text"
               value={search}
-              onChange={(e) => setSearch(e.target.value)}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                if (e.target.value.length > 1) {
+                  const matches = listings
+                    .filter((l) => l.title.toLowerCase().includes(e.target.value.toLowerCase()))
+                    .slice(0, 6);
+                  setSuggestions(matches);
+                  setShowSuggestions(true);
+                } else {
+                  setShowSuggestions(false);
+                }
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = "#ff3b3b";
+                if (search.length > 1) setShowSuggestions(true);
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = border;
+                setTimeout(() => setShowSuggestions(false), 150);
+              }}
               placeholder="Search for anything..."
               style={{ width: "100%", paddingLeft: 40, paddingRight: 16, paddingTop: 10, paddingBottom: 10, borderRadius: 12, border: `1.5px solid ${border}`, background: subtle, color: text, fontSize: 13.5, outline: "none", boxSizing: "border-box", transition: "border-color 0.15s" }}
-              onFocus={(e) => e.target.style.borderColor = "#ff3b3b"}
-              onBlur={(e) => e.target.style.borderColor = border}
             />
+            {showSuggestions && suggestions.length > 0 && (
+              <div style={{ position: "absolute", top: "calc(100% + 8px)", left: 0, right: 0, background: card, border: `1px solid ${border}`, borderRadius: 14, padding: 6, boxShadow: "0 12px 40px rgba(0,0,0,0.12)", zIndex: 50 }}>
+                {suggestions.map((s) => (
+                  <Link
+                    key={s.id}
+                    href={`/listings/${s.id}`}
+                    onClick={() => { setSearch(s.title); setShowSuggestions(false); }}
+                    style={{ display: "flex", alignItems: "center", gap: 10, padding: "8px 10px", borderRadius: 8, textDecoration: "none", transition: "background 0.1s" }}
+                    onMouseEnter={(e) => (e.currentTarget.style.background = subtle)}
+                    onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                  >
+                    <Search size={12} style={{ color: muted, flexShrink: 0 }} />
+                    <span style={{ fontSize: 13, fontWeight: 500, color: text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.title}</span>
+                    <span style={{ marginLeft: "auto", fontSize: 12, fontWeight: 700, color: muted, flexShrink: 0 }}>${s.price}</span>
+                  </Link>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Right side */}
