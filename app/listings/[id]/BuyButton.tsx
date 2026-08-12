@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
+import { Heart, Share2, Check } from "lucide-react";
 
 export default function BuyButton({ listingId, title, price, image, sellerId }: { listingId: number; title: string; price: number; image: string; sellerId: string; }) {
   const [buyLoading, setBuyLoading] = useState(false);
@@ -10,6 +11,16 @@ export default function BuyButton({ listingId, title, price, image, sellerId }: 
   const [offerLoading, setOfferLoading] = useState(false);
   const [offerStatus, setOfferStatus] = useState<"idle" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+  try {
+    const key = "recently_viewed";
+    const existing: number[] = JSON.parse(localStorage.getItem(key) || "[]");
+    const updated = [listingId, ...existing.filter((id) => id !== listingId)].slice(0, 6);
+    localStorage.setItem(key, JSON.stringify(updated));
+  } catch {}
+  }, [listingId]);
 
   const handleBuy = async () => {
     setBuyLoading(true);
@@ -42,9 +53,40 @@ export default function BuyButton({ listingId, title, price, image, sellerId }: 
     }
   };
 
+  const handleShare = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // fallback
+      const input = document.createElement("input");
+      input.value = window.location.href;
+      document.body.appendChild(input);
+      input.select();
+      document.execCommand("copy");
+      document.body.removeChild(input);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
   return (
     <>
       <div className="mt-6 flex flex-col gap-3">
+        <button
+          onClick={handleShare}
+          style={{
+            display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+            padding: "10px 16px", borderRadius: 10, width: "100%",
+            border: "1.5px solid rgba(0,0,0,0.08)",
+            background: copied ? "rgba(34,197,94,0.08)" : "rgba(0,0,0,0.03)",
+            color: copied ? "#16a34a" : "rgba(0,0,0,0.5)",
+            fontSize: 13, fontWeight: 600, cursor: "pointer", transition: "all 0.2s",
+          }}
+        >
+          {copied ? <><Check size={14} /> Copied to clipboard!</> : <><Share2 size={14} /> Share listing</>}
+        </button>
         <button onClick={handleBuy} disabled={buyLoading} className="w-full bg-red-500 text-white py-3 rounded-full font-medium hover:bg-red-600 transition disabled:opacity-50">
           {buyLoading ? "Loading..." : `Buy Now — $${price}`}
         </button>

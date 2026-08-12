@@ -5,6 +5,9 @@ import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { Listing } from "./types";
+import { Search, Moon, Sun, Heart, SlidersHorizontal, ChevronDown, LogOut, Tag, LayoutList, Settings, PackageSearch } from "lucide-react";
+import Banner from "./components/Banner";
+import RecentlyViewed from "./components/RecentlyViewed";
 
 const categories = ["All", "Electronics", "Sneakers", "Clothing", "Gaming", "Home", "Bags"];
 type SortOption = "default" | "price-asc" | "price-desc" | "most-liked";
@@ -21,6 +24,8 @@ export default function Home() {
   const [maxPrice, setMaxPrice] = useState("");
   const [liked, setLiked] = useState<number[]>([]);
   const [showLikedOnly, setShowLikedOnly] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
 
   useEffect(() => {
     fetchListings();
@@ -81,109 +86,289 @@ export default function Home() {
     return result;
   }, [listings, search, activeCategory, minPrice, maxPrice, sort, showLikedOnly, liked]);
 
-  const s = (light: string, darkVal: string) => (dark ? darkVal : light);
+  const bg = dark ? "#0a0a0f" : "#f5f5f7";
+  const card = dark ? "#1c1c22" : "#ffffff";
+  const border = dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)";
+  const text = dark ? "#f5f5f7" : "#1a1a1a";
+  const muted = dark ? "rgba(255,255,255,0.38)" : "rgba(0,0,0,0.38)";
+  const subtle = dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)";
 
   return (
-    <div className={dark ? "dark" : ""}>
-      <div className="min-h-screen transition-colors duration-300" style={{ background: dark ? "linear-gradient(135deg, #0a0a0f 0%, #0f0f1a 50%, #0a0a0f 100%)" : "linear-gradient(135deg, #f8f8fc 0%, #ffffff 50%, #f0f0fa 100%)", fontFamily: "'DM Sans', sans-serif" }}>
-        <nav className="sticky top-0 z-20 border-b transition-colors duration-300" style={{ background: dark ? "rgba(10,10,15,0.85)" : "rgba(255,255,255,0.85)", borderColor: dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)", backdropFilter: "blur(20px)" }}>
-          <div className="max-w-7xl mx-auto px-6 py-4 flex items-center gap-5">
-            <div className="shrink-0 flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center text-white text-xs font-black" style={{ background: "linear-gradient(135deg, #ff3b3b, #ff6b35)" }}>M</div>
-              <span className="text-lg font-black tracking-tight" style={{ color: s("#0a0a0f", "#fff") }}>mercari</span>
+    <div style={{ minHeight: "100vh", background: bg, fontFamily: "'DM Sans', sans-serif", color: text, transition: "background 0.3s" }}>
+
+      {/* Navbar */}
+      <nav style={{ position: "sticky", top: 0, zIndex: 20, background: dark ? "rgba(10,10,15,0.92)" : "rgba(255,255,255,0.92)", borderBottom: `1px solid ${border}`, backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)" }}>
+        <div style={{ maxWidth: 1400, margin: "0 auto", padding: "0 32px", height: 64, display: "flex", alignItems: "center", gap: 20 }}>
+
+          {/* Logo */}
+          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 10, textDecoration: "none", flexShrink: 0 }}>
+            <div style={{ width: 32, height: 32, borderRadius: 10, background: "linear-gradient(135deg, #ff3b3b, #ff6b35)", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 2px 8px rgba(255,59,59,0.3)" }}>
+              <span style={{ color: "#fff", fontSize: 14, fontWeight: 900 }}>M</span>
             </div>
-            <div className="flex-1 relative">
-              <span className="absolute left-4 top-1/2 -translate-y-1/2 text-sm">🔍</span>
-              <input type="text" value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Search for anything..." className="w-full pl-10 pr-4 py-2.5 rounded-xl text-sm focus:outline-none transition-all" style={{ background: s("rgba(0,0,0,0.05)", "rgba(255,255,255,0.06)"), color: s("#0a0a0f", "#fff"), border: `1px solid ${s("rgba(0,0,0,0.08)", "rgba(255,255,255,0.1)")}` }} />
-            </div>
-            <div className="flex items-center gap-3 shrink-0">
-              <button onClick={() => setDark(!dark)} className="w-9 h-9 rounded-xl flex items-center justify-center text-sm transition-all hover:scale-105" style={{ background: s("rgba(0,0,0,0.05)", "rgba(255,255,255,0.08)") }}>{dark ? "☀️" : "🌙"}</button>
-              {user ? (
-                <div className="flex items-center gap-2">
-                  <span className="text-xs font-medium" style={{ color: s("rgba(0,0,0,0.5)", "rgba(255,255,255,0.5)") }}>{user.email}</span>
-                  <Link href="/offers" className="text-xs font-semibold px-3 py-2 rounded-xl transition-all" style={{ background: s("rgba(0,0,0,0.05)", "rgba(255,255,255,0.08)"), color: s("rgba(0,0,0,0.5)", "rgba(255,255,255,0.5)") }}>Offers</Link>
-                  <Link href="/my-listings" className="text-xs font-semibold px-3 py-2 rounded-xl transition-all" style={{ background: s("rgba(0,0,0,0.05)", "rgba(255,255,255,0.08)"), color: s("rgba(0,0,0,0.5)", "rgba(255,255,255,0.5)") }}>My Listings</Link>
-                  <button onClick={handleSignOut} className="text-xs font-semibold px-3 py-2 rounded-xl transition-all" style={{ background: s("rgba(0,0,0,0.05)", "rgba(255,255,255,0.08)"), color: s("rgba(0,0,0,0.5)", "rgba(255,255,255,0.5)") }}>Sign out</button>
-                </div>
-              ) : (
-                <Link href="/auth" className="text-xs font-semibold px-3 py-2 rounded-xl transition-all" style={{ background: s("rgba(0,0,0,0.05)", "rgba(255,255,255,0.08)"), color: s("rgba(0,0,0,0.5)", "rgba(255,255,255,0.5)") }}>Sign in</Link>
-              )}
-              <Link href="/sell" className="px-4 py-2 rounded-xl text-sm font-bold text-white transition-all hover:scale-105 hover:shadow-lg" style={{ background: "linear-gradient(135deg, #ff3b3b, #ff6b35)", boxShadow: "0 4px 15px rgba(255,59,59,0.3)" }}>+ Sell</Link>
-            </div>
+            <span style={{ fontWeight: 800, fontSize: 17, color: text, letterSpacing: "-0.6px" }}>mercari</span>
+          </Link>
+
+          {/* Search */}
+          <div style={{ flex: 1, position: "relative", maxWidth: 600 }}>
+            <Search size={14} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: muted, pointerEvents: "none" }} />
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search for anything..."
+              style={{ width: "100%", paddingLeft: 40, paddingRight: 16, paddingTop: 10, paddingBottom: 10, borderRadius: 12, border: `1.5px solid ${border}`, background: subtle, color: text, fontSize: 13.5, outline: "none", boxSizing: "border-box", transition: "border-color 0.15s" }}
+              onFocus={(e) => e.target.style.borderColor = "#ff3b3b"}
+              onBlur={(e) => e.target.style.borderColor = border}
+            />
           </div>
-          <div className="max-w-7xl mx-auto px-6 pb-4 flex gap-2 overflow-x-auto scrollbar-hide">
-            {categories.map((cat) => (
-              <button key={cat} onClick={() => setActiveCategory(cat)} className="whitespace-nowrap px-4 py-1.5 rounded-lg text-xs font-semibold transition-all hover:scale-105" style={{ background: activeCategory === cat ? "linear-gradient(135deg, #ff3b3b, #ff6b35)" : s("rgba(0,0,0,0.05)", "rgba(255,255,255,0.06)"), color: activeCategory === cat ? "#fff" : s("rgba(0,0,0,0.5)", "rgba(255,255,255,0.6)"), boxShadow: activeCategory === cat ? "0 4px 12px rgba(255,59,59,0.25)" : "none" }}>{cat}</button>
-            ))}
+
+          {/* Right side */}
+          <div style={{ display: "flex", alignItems: "center", gap: 10, marginLeft: "auto", flexShrink: 0 }}>
+            <button
+              onClick={() => setDark(!dark)}
+              style={{ width: 36, height: 36, borderRadius: 10, border: `1.5px solid ${border}`, background: subtle, display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: muted, transition: "all 0.15s" }}
+            >
+              {dark ? <Sun size={15} /> : <Moon size={15} />}
+            </button>
+
+            {user ? (
+              <div style={{ position: "relative" }}>
+                <button
+                  onClick={() => setShowProfileMenu(!showProfileMenu)}
+                  style={{ width: 36, height: 36, borderRadius: "50%", background: "linear-gradient(135deg, #ff3b3b, #ff6b35)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", color: "#fff", fontWeight: 800, fontSize: 14, boxShadow: "0 2px 8px rgba(255,59,59,0.3)" }}
+                >
+                  {user.email?.[0].toUpperCase()}
+                </button>
+                {showProfileMenu && (
+                  <div
+                    style={{ position: "absolute", top: 46, right: 0, background: card, border: `1px solid ${border}`, borderRadius: 14, padding: 6, minWidth: 200, boxShadow: "0 12px 40px rgba(0,0,0,0.15)", zIndex: 100 }}
+                    onMouseLeave={() => setShowProfileMenu(false)}
+                  >
+                    <div style={{ padding: "8px 12px 10px", borderBottom: `1px solid ${border}`, marginBottom: 4 }}>
+                      <p style={{ fontSize: 12, fontWeight: 700, color: text }}>{user.email}</p>
+                    </div>
+                    {[
+                      { label: "My Listings", href: "/my-listings", icon: <LayoutList size={14} /> },
+                      { label: "Offers", href: "/offers", icon: <Tag size={14} /> },
+                      { label: "Settings", href: "/settings", icon: <Settings size={14} /> },
+                    ].map((item) => (
+                      <Link
+                        key={item.href}
+                        href={item.href}
+                        onClick={() => setShowProfileMenu(false)}
+                        style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 8, color: text, fontSize: 13, fontWeight: 500, textDecoration: "none", transition: "background 0.1s" }}
+                        onMouseEnter={(e) => (e.currentTarget.style.background = subtle)}
+                        onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                      >
+                        <span style={{ color: muted }}>{item.icon}</span> {item.label}
+                      </Link>
+                    ))}
+                    <div style={{ height: 1, background: border, margin: "4px 6px" }} />
+                    <button
+                      onClick={() => { handleSignOut(); setShowProfileMenu(false); }}
+                      style={{ display: "flex", alignItems: "center", gap: 10, padding: "9px 12px", borderRadius: 8, color: "#ff3b3b", fontSize: 13, fontWeight: 500, cursor: "pointer", background: "none", border: "none", width: "100%", transition: "background 0.1s" }}
+                      onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(255,59,59,0.06)")}
+                      onMouseLeave={(e) => (e.currentTarget.style.background = "transparent")}
+                    >
+                      <LogOut size={14} /> Sign out
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <Link
+                href="/auth"
+                style={{ padding: "8px 16px", borderRadius: 10, border: `1.5px solid ${border}`, background: subtle, color: text, fontSize: 13, fontWeight: 600, textDecoration: "none", transition: "all 0.15s" }}
+              >
+                Sign in
+              </Link>
+            )}
+
+            <Link
+              href="/sell"
+              style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 18px", borderRadius: 10, background: "linear-gradient(135deg, #ff3b3b, #ff6b35)", color: "#fff", fontSize: 13.5, fontWeight: 700, textDecoration: "none", boxShadow: "0 2px 12px rgba(255,59,59,0.3)", transition: "opacity 0.15s" }}
+              onMouseEnter={(e) => (e.currentTarget.style.opacity = "0.9")}
+              onMouseLeave={(e) => (e.currentTarget.style.opacity = "1")}
+            >
+              + Sell
+            </Link>
           </div>
-        </nav>
-        <div className="border-b" style={{ background: s("rgba(255,255,255,0.6)", "rgba(10,10,15,0.6)"), borderColor: s("rgba(0,0,0,0.06)", "rgba(255,255,255,0.06)"), backdropFilter: "blur(10px)" }}>
-          <div className="max-w-7xl mx-auto px-6 py-3 flex flex-wrap items-center gap-3">
-            <select value={sort} onChange={(e) => setSort(e.target.value as SortOption)} className="text-xs font-semibold px-3 py-2 rounded-lg focus:outline-none transition-all cursor-pointer" style={{ background: s("rgba(0,0,0,0.05)", "rgba(255,255,255,0.06)"), color: s("#0a0a0f", "#fff"), border: `1px solid ${s("rgba(0,0,0,0.08)", "rgba(255,255,255,0.1)")}` }}>
+        </div>
+
+        {/* Category pills */}
+        <div style={{ maxWidth: 1400, margin: "0 auto", padding: "0 32px 14px", display: "flex", gap: 6, overflowX: "auto", scrollbarWidth: "none" }}>
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setActiveCategory(cat)}
+              style={{
+                whiteSpace: "nowrap", padding: "6px 16px", borderRadius: 20, fontSize: 12.5, fontWeight: 600, cursor: "pointer", transition: "all 0.15s",
+                background: activeCategory === cat ? "linear-gradient(135deg, #ff3b3b, #ff6b35)" : subtle,
+                color: activeCategory === cat ? "#fff" : muted,
+                border: `1.5px solid ${activeCategory === cat ? "transparent" : border}`,
+                boxShadow: activeCategory === cat ? "0 2px 10px rgba(255,59,59,0.25)" : "none",
+              }}
+            >
+              {cat}
+            </button>
+          ))}
+        </div>
+      </nav>
+
+      {/* Banner */}
+      <Banner />
+
+      {/* Recently viewed */}
+      <RecentlyViewed dark={dark} />
+
+      {/* Filters bar */}
+      <div style={{ maxWidth: 1400, margin: "0 auto", padding: "24px 32px 0" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+          <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+            <h2 style={{ fontSize: 22, fontWeight: 800, letterSpacing: "-0.5px", margin: 0 }}>
+              {activeCategory === "All" ? "All listings" : activeCategory}
+            </h2>
+            {!loading && (
+              <span style={{ fontSize: 13, color: muted, fontWeight: 500 }}>{filtered.length} items</span>
+            )}
+          </div>
+
+          <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+            <button
+              onClick={() => setShowLikedOnly(!showLikedOnly)}
+              style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 10, border: `1.5px solid ${showLikedOnly ? "#ff3b3b" : border}`, background: showLikedOnly ? "rgba(255,59,59,0.06)" : subtle, color: showLikedOnly ? "#ff3b3b" : muted, fontSize: 12.5, fontWeight: 600, cursor: "pointer", transition: "all 0.15s" }}
+            >
+              <Heart size={13} fill={showLikedOnly ? "#ff3b3b" : "none"} /> Saved
+            </button>
+
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              style={{ display: "flex", alignItems: "center", gap: 6, padding: "8px 14px", borderRadius: 10, border: `1.5px solid ${showFilters ? "#ff3b3b" : border}`, background: showFilters ? "rgba(255,59,59,0.06)" : subtle, color: showFilters ? "#ff3b3b" : muted, fontSize: 12.5, fontWeight: 600, cursor: "pointer", transition: "all 0.15s" }}
+            >
+              <SlidersHorizontal size={13} /> Filters
+              <ChevronDown size={12} style={{ transform: showFilters ? "rotate(180deg)" : "none", transition: "transform 0.2s" }} />
+            </button>
+
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as SortOption)}
+              style={{ padding: "8px 14px", borderRadius: 10, border: `1.5px solid ${border}`, background: subtle, color: muted, fontSize: 12.5, fontWeight: 600, cursor: "pointer", outline: "none" }}
+            >
               <option value="default">Sort: Default</option>
-              <option value="price-asc">Price: Low to High</option>
-              <option value="price-desc">Price: High to Low</option>
+              <option value="price-asc">Price: Low → High</option>
+              <option value="price-desc">Price: High → Low</option>
               <option value="most-liked">Most Liked</option>
             </select>
-            <div className="flex items-center gap-2">
-              <input type="number" placeholder="Min $" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} className="w-20 text-xs px-3 py-2 rounded-lg focus:outline-none" style={{ background: s("rgba(0,0,0,0.05)", "rgba(255,255,255,0.06)"), color: s("#0a0a0f", "#fff"), border: `1px solid ${s("rgba(0,0,0,0.08)", "rgba(255,255,255,0.1)")}` }} />
-              <span style={{ color: s("rgba(0,0,0,0.3)", "rgba(255,255,255,0.3)") }} className="text-xs">—</span>
-              <input type="number" placeholder="Max $" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} className="w-20 text-xs px-3 py-2 rounded-lg focus:outline-none" style={{ background: s("rgba(0,0,0,0.05)", "rgba(255,255,255,0.06)"), color: s("#0a0a0f", "#fff"), border: `1px solid ${s("rgba(0,0,0,0.08)", "rgba(255,255,255,0.1)")}` }} />
-            </div>
-            <button onClick={() => setShowLikedOnly(!showLikedOnly)} className="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg transition-all hover:scale-105" style={{ background: showLikedOnly ? "linear-gradient(135deg, #ff3b3b, #ff6b35)" : s("rgba(0,0,0,0.05)", "rgba(255,255,255,0.06)"), color: showLikedOnly ? "#fff" : s("rgba(0,0,0,0.5)", "rgba(255,255,255,0.6)"), border: `1px solid ${showLikedOnly ? "transparent" : s("rgba(0,0,0,0.08)", "rgba(255,255,255,0.1)")}` }}>
-              ❤️ Saved {liked.length > 0 && `(${liked.length})`}
-            </button>
-            {(minPrice || maxPrice || sort !== "default" || showLikedOnly) && (
-              <button onClick={() => { setMinPrice(""); setMaxPrice(""); setSort("default"); setShowLikedOnly(false); }} className="text-xs font-semibold px-3 py-2 rounded-lg" style={{ color: "#ff3b3b" }}>Clear filters</button>
-            )}
-            <span className="ml-auto text-xs font-medium" style={{ color: s("rgba(0,0,0,0.35)", "rgba(255,255,255,0.35)") }}>{loading ? "Loading..." : `${filtered.length} results`}</span>
           </div>
         </div>
-        <div className="max-w-7xl mx-auto px-6 pt-8 pb-4">
-          <h2 className="text-3xl font-black tracking-tight" style={{ color: s("#0a0a0f", "#fff") }}>{activeCategory === "All" ? "All listings" : activeCategory}</h2>
-        </div>
-        <main className="max-w-7xl mx-auto px-6 pb-12">
-          {loading ? (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-              {[...Array(12)].map((_, i) => (
-                <div key={i} className="rounded-2xl overflow-hidden animate-pulse" style={{ background: s("rgba(0,0,0,0.06)", "rgba(255,255,255,0.04)") }}>
-                  <div className="aspect-square w-full" style={{ background: s("rgba(0,0,0,0.08)", "rgba(255,255,255,0.06)") }} />
-                  <div className="p-3 space-y-2">
-                    <div className="h-3 rounded" style={{ background: s("rgba(0,0,0,0.08)", "rgba(255,255,255,0.06)") }} />
-                    <div className="h-3 w-1/2 rounded" style={{ background: s("rgba(0,0,0,0.08)", "rgba(255,255,255,0.06)") }} />
+
+        {showFilters && (
+          <div style={{ marginTop: 14, padding: "14px 18px", borderRadius: 12, border: `1.5px solid ${border}`, background: card, display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+            <span style={{ fontSize: 12.5, color: muted, fontWeight: 600 }}>Price range</span>
+            <input
+              type="number" placeholder="Min $" value={minPrice}
+              onChange={(e) => setMinPrice(e.target.value)}
+              style={{ width: 88, padding: "7px 12px", borderRadius: 8, border: `1.5px solid ${border}`, background: subtle, color: text, fontSize: 12.5, outline: "none" }}
+            />
+            <span style={{ color: muted }}>—</span>
+            <input
+              type="number" placeholder="Max $" value={maxPrice}
+              onChange={(e) => setMaxPrice(e.target.value)}
+              style={{ width: 88, padding: "7px 12px", borderRadius: 8, border: `1.5px solid ${border}`, background: subtle, color: text, fontSize: 12.5, outline: "none" }}
+            />
+            {(minPrice || maxPrice) && (
+              <button
+                onClick={() => { setMinPrice(""); setMaxPrice(""); }}
+                style={{ fontSize: 12.5, color: "#ff3b3b", fontWeight: 600, cursor: "pointer", background: "none", border: "none", padding: 0 }}
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Grid */}
+      <main style={{ maxWidth: 1400, margin: "0 auto", padding: "20px 32px 64px" }}>
+        {loading ? (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 20 }}>
+            {[...Array(12)].map((_, i) => (
+              <div key={i} style={{ borderRadius: 16, overflow: "hidden", background: card, border: `1px solid ${border}` }}>
+                <div style={{ paddingTop: "75%", background: subtle }} />
+                <div style={{ padding: "12px 14px 14px", display: "flex", flexDirection: "column", gap: 8 }}>
+                  <div style={{ height: 13, borderRadius: 6, background: subtle, width: "80%" }} />
+                  <div style={{ height: 13, borderRadius: 6, background: subtle, width: "40%" }} />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : filtered.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "100px 0" }}>
+            <div style={{ width: 64, height: 64, borderRadius: 20, background: subtle, display: "flex", alignItems: "center", justifyContent: "center", margin: "0 auto 16px" }}>
+              <PackageSearch size={28} style={{ color: muted }} />
+            </div>
+            <p style={{ color: text, fontSize: 16, fontWeight: 700, marginBottom: 6 }}>No listings found</p>
+            <p style={{ color: muted, fontSize: 13 }}>Try adjusting your filters or search term</p>
+            {activeCategory !== "All" && (
+              <button
+                onClick={() => setActiveCategory("All")}
+                style={{ marginTop: 16, padding: "8px 18px", borderRadius: 10, background: "linear-gradient(135deg, #ff3b3b, #ff6b35)", color: "#fff", fontSize: 13, fontWeight: 700, border: "none", cursor: "pointer" }}
+              >
+                View all listings
+              </button>
+            )}
+          </div>
+        ) : (
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 20 }}>
+            {filtered.map((listing) => (
+              <Link href={`/listings/${listing.id}`} key={listing.id} style={{ textDecoration: "none" }}>
+                <div
+                  style={{ borderRadius: 16, overflow: "hidden", background: card, border: `1px solid ${border}`, boxShadow: dark ? "0 4px 24px rgba(0,0,0,0.3)" : "0 2px 12px rgba(0,0,0,0.05)", transition: "transform 0.2s, box-shadow 0.2s", cursor: "pointer" }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLDivElement).style.transform = "translateY(-3px)";
+                    (e.currentTarget as HTMLDivElement).style.boxShadow = dark ? "0 12px 40px rgba(0,0,0,0.5)" : "0 8px 28px rgba(0,0,0,0.1)";
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)";
+                    (e.currentTarget as HTMLDivElement).style.boxShadow = dark ? "0 4px 24px rgba(0,0,0,0.3)" : "0 2px 12px rgba(0,0,0,0.05)";
+                  }}
+                >
+                  {/* Image */}
+                  <div style={{ position: "relative", paddingTop: "75%", overflow: "hidden" }}>
+                    <Image
+                      src={listing.image}
+                      alt={listing.title}
+                      fill
+                      style={{ objectFit: "cover", transition: "transform 0.4s" }}
+                    />
+                    <button
+                      onClick={(e) => toggleLike(e, listing.id)}
+                      style={{ position: "absolute", top: 10, right: 10, width: 32, height: 32, borderRadius: "50%", background: "rgba(0,0,0,0.3)", backdropFilter: "blur(8px)", border: "none", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer", transition: "transform 0.15s" }}
+                      onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
+                      onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                    >
+                      <Heart size={14} fill={liked.includes(listing.id) ? "#ff3b3b" : "none"} color={liked.includes(listing.id) ? "#ff3b3b" : "#fff"} />
+                    </button>
+                    {listing.condition === "New" && (
+                      <span style={{ position: "absolute", top: 10, left: 10, fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 6, background: "rgba(34,197,94,0.9)", color: "#fff", backdropFilter: "blur(8px)" }}>NEW</span>
+                    )}
+                  </div>
+
+                  {/* Info */}
+                  <div style={{ padding: "12px 14px 14px" }}>
+                    <p style={{ fontSize: 13, fontWeight: 600, color: text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: 4, lineHeight: 1.4 }}>{listing.title}</p>
+                    <p style={{ fontSize: 17, fontWeight: 800, color: text, marginBottom: 8, letterSpacing: "-0.3px" }}>${listing.price}</p>
+                    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                      <span style={{ fontSize: 11, fontWeight: 600, color: muted, background: subtle, padding: "3px 8px", borderRadius: 6, border: `1px solid ${border}` }}>{listing.condition}</span>
+                      <span style={{ fontSize: 11, color: muted, fontWeight: 500 }}>@{listing.seller}</span>
+                    </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="text-center py-24">
-              <p className="text-5xl mb-4">🔍</p>
-              <p className="text-sm font-medium" style={{ color: s("rgba(0,0,0,0.3)", "rgba(255,255,255,0.3)") }}>No results found</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
-              {filtered.map((listing) => (
-                <Link href={`/listings/${listing.id}`} key={listing.id}>
-                  <div className="group rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 cursor-pointer" style={{ background: s("#fff", "rgba(255,255,255,0.04)"), border: `1px solid ${s("rgba(0,0,0,0.06)", "rgba(255,255,255,0.06)")}`, boxShadow: s("0 2px 12px rgba(0,0,0,0.06)", "0 4px 24px rgba(0,0,0,0.4)") }}>
-                    <div className="relative w-full aspect-square overflow-hidden">
-                      <Image src={listing.image} alt={listing.title} fill className="object-cover group-hover:scale-110 transition-transform duration-500" />
-                      <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.4), transparent)" }} />
-                      <button onClick={(e) => toggleLike(e, listing.id)} className="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center text-sm transition-all hover:scale-110" style={{ background: liked.includes(listing.id) ? "linear-gradient(135deg, #ff3b3b, #ff6b35)" : "rgba(0,0,0,0.4)", backdropFilter: "blur(8px)" }}>
-                        {liked.includes(listing.id) ? "❤️" : "🤍"}
-                      </button>
-                    </div>
-                    <div className="p-3">
-                      <p className="text-xs truncate font-semibold leading-snug" style={{ color: s("#0a0a0f", "rgba(255,255,255,0.9)") }}>{listing.title}</p>
-                      <p className="text-sm font-black mt-1" style={{ color: s("#0a0a0f", "#fff") }}>${listing.price}</p>
-                      <span className="text-xs px-2 py-0.5 rounded-md font-medium mt-2 inline-block" style={{ background: s("rgba(0,0,0,0.05)", "rgba(255,255,255,0.08)"), color: s("rgba(0,0,0,0.4)", "rgba(255,255,255,0.5)") }}>{listing.condition}</span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </main>
-      </div>
+              </Link>
+            ))}
+          </div>
+        )}
+      </main>
     </div>
   );
 }
