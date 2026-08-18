@@ -43,7 +43,7 @@ export default function ReviewForm({
       setLoading(false);
     }
   };
-  
+
   const border = "rgba(0,0,0,0.07)";
   const muted = "rgba(0,0,0,0.4)";
   const subtle = "rgba(0,0,0,0.04)";
@@ -66,8 +66,8 @@ export default function ReviewForm({
           >
             <Star
               size={24}
-              fill={(hovered || rating) >= star ? "f59e0b" : "none"}
-              color={(hovered || rating) >= star ? "f59e0b" : "rgba(0,0,0,0.2)"}
+              fill={(hovered || rating) >= star ? "#f59e0b" : "none"}
+              color={(hovered || rating) >= star ? "#f59e0b" : "rgba(0,0,0,0.2)"}
             />
           </button>
         ))}
@@ -77,4 +77,27 @@ export default function ReviewForm({
           </span>
         )}
       </div>
-  )
+
+      {/* Comment */}
+      <textarea
+        value={comment}
+        onChange={(e) => setComment(e.target.value)}
+        placeholder="Share your experience with this seller... (optional)"
+        rows={3}
+        style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: `1.5px solid ${border}`, background: subtle, fontSize: 13, outline: "none", resize: "none", fontFamily: "'DM Sans', sans-serif", color: "#1a1a1a", boxSizing: "border-box", marginBottom: 12 }}
+        onFocus={(e) => (e.target.style.borderColor = "#ff3b3b")}
+        onBlur={(e) => (e.target.style.borderColor = border)}
+      />
+
+      {error && <p style={{ fontSize: 12, color: "#ff3b3b", marginBottom: 10 }}>{error}</p>}
+
+      <button
+        onClick={handleSubmit}
+        disabled={loading}
+        style={{ padding: "9px 20px", borderRadius: 10, background: "linear-gradient(135deg, #ff3b3b, #ff6b35)", color: "#fff", fontSize: 13, fontWeight: 700, border: "none", cursor: "pointer", opacity: loading ? 0.6 : 1, boxShadow: "0 2px 10px rgba(255,59,59,0.25)" }}
+      >
+        {loading ? "Submitting..." : "Submit review"}
+      </button>
+    </div>
+  );
+}
