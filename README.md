@@ -11,7 +11,7 @@ A production-grade peer-to-peer marketplace built from scratch with Next.js 16, 
 
 Most marketplace clones stop at CRUD. This one ships a full buying and selling experience — AI-generated listings, real payments, offer negotiation, seller reviews, and a polished UI that holds up next to production apps.
 
-The real standout feature: upload a photo of anything you want to sell, and Claude analyzes the image and writes the entire listing for you — title, description, category, condition, and a suggested price. It's fast, accurate, and genuinely useful.
+The standout feature: upload a photo of anything you want to sell, and Claude analyzes the image and writes the entire listing for you — title, description, category, condition, and a suggested price. It's fast, accurate, and genuinely useful.
 
 ---
 
