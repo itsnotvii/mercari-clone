@@ -60,11 +60,8 @@ export default function Banner() {
             className="absolute inset-0"
             style={{ background: "linear-gradient(to right, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.3) 60%, transparent 100%)" }}
           />
-          <div className="absolute inset-0 flex flex-col justify0center px-8">
-            <span
-              className="text-xs font-bold px-4 py-1 rounded-full mb-3 inline-block w-fit"
-              style={{ background: "linear-gradient(135deg, #ff3b3b, #ff6b35)", color: "#fff" }}
-            >
+          <div className="absolute inset-0 flex flex-col justify-center px-8">
+            <span className="text-xs font-bold px-4 py-1 rounded-full mb-3 inline-block w-fit bg-[linear-gradient(135deg,var(--color-brand-start),var(--color-brand-end))] text-white shadow-[var(--shadow-glow-brand-sm)]">
               ⭐ Featured
             </span>
             <h2 className="text-2xl font-black text-white mb-1 max-w-xs leading-tight">
@@ -73,7 +70,7 @@ export default function Banner() {
             <p className="text-white/70 text-sm mb-4">{listing.condition} · {listing.category}</p>
             <p className="text-3xl font-black text-white">${listing.price}</p>
           </div>
-          <div className="absolite bottom-4 left-8 flex gap-2">
+          <div className="absolute bottom-4 left-8 flex gap-2">
             {listings.map((_, i) => (
               <button
                 key={i}
@@ -88,15 +85,13 @@ export default function Banner() {
           </div>
           <button
             onClick={(e) => { e.preventDefault(); setCurrent((current - 1 + listings.length) % listings.length); }}
-            className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-white text-xl opacity-0 group-hover:opacity-100 transition-opacity"
-            style={{ background: "rgba(0,0,0,0.4)", backdropFilter: "blur(8px" }}
+            className="absolute left-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-white text-xl bg-black/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/55"
           >
             ‹
           </button>
-          <button 
+          <button
             onClick={(e) => { e.preventDefault(); setCurrent((current + 1) % listings.length); }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-white text-xl opacity-0 group-hover:opacity-100 transition-opacity"
-            style={{ background: "rgba(0,0,0,0.4", backdropFilter: "blur(8px)" }}
+            className="absolute right-4 top-1/2 -translate-y-1/2 w-8 h-8 rounded-full flex items-center justify-center text-white text-xl bg-black/40 backdrop-blur-sm opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/55"
           >
             ›
           </button>

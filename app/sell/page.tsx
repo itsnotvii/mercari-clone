@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
+import AppNav from "../components/ui/AppNav";
+import Button from "../components/ui/Button";
 
 const categories = ["Electronics", "Sneakers", "Clothing", "Gaming", "Home", "Bags"];
 const conditions = ["New", "Like New", "Good", "Fair"];
@@ -87,58 +88,68 @@ export default function SellPage() {
     }
   };
 
+  const inputClass = "w-full border border-[var(--color-border)] bg-[var(--color-subtle)] rounded-xl px-4 py-2 text-sm outline-none focus:border-[var(--color-brand)] transition-colors";
+  const labelClass = "block text-sm font-medium text-[var(--color-muted)] mb-1";
+
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-6xl mx-auto px-4 py-3 flex items-center gap-4">
-          <Link href="/" className="text-2xl font-bold text-red-500">mercari</Link>
-        </div>
-      </nav>
-      <main className="max-w-lg mx-auto px-4 py-8">
-        <h1 className="text-2xl font-bold mb-6">List an item</h1>
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm p-6 space-y-5">
+    <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)]">
+      <AppNav />
+      <main className="max-w-lg mx-auto px-4 py-8 pb-16">
+        <h1 className="text-2xl font-extrabold mb-6 tracking-tight">List an item</h1>
+        <form onSubmit={handleSubmit} className="bg-[var(--color-surface)] rounded-2xl border border-[var(--color-border)] shadow-[var(--shadow-card)] p-6 space-y-5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Photo</label>
-            <div className="w-full h-48 border-2 border-dashed border-gray-200 rounded-xl flex items-center justify-center cursor-pointer overflow-hidden" onClick={() => document.getElementById("image-input")?.click()}>
-              {imagePreview ? <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" /> : <div className="text-center"><p className="text-3xl mb-1">📷</p><p className="text-xs text-gray-400">Click to upload a photo</p></div>}
+            <label className={labelClass}>Photo</label>
+            <div
+              className="w-full h-48 border-2 border-dashed border-[var(--color-border)] rounded-xl flex items-center justify-center cursor-pointer overflow-hidden hover:border-[var(--color-brand)] transition-colors"
+              onClick={() => document.getElementById("image-input")?.click()}
+            >
+              {imagePreview ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+              ) : (
+                <div className="text-center">
+                  <p className="text-3xl mb-1">📷</p>
+                  <p className="text-xs text-[var(--color-muted)]">Click to upload a photo</p>
+                </div>
+              )}
             </div>
             <input id="image-input" type="file" accept="image/*" onChange={handleImage} className="hidden" />
           </div>
           {image && (
-            <button type="button" onClick={handleGenerate} disabled={generating} className="w-full py-3 rounded-full font-medium text-sm transition flex items-center justify-center gap-2" style={{ background: generating ? "rgba(0,0,0,0.05)" : "linear-gradient(135deg, #6366f1, #8b5cf6)", color: generating ? "rgba(0,0,0,0.4)" : "#fff" }}>
+            <Button type="button" variant="ai" onClick={handleGenerate} disabled={generating} className="w-full py-3 text-sm">
               {generating ? <><span className="animate-spin">⏳</span> Generating...</> : <>✨ Generate listing with AI</>}
-            </button>
+            </Button>
           )}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
-            <input name="title" value={form.title} onChange={handleChange} required placeholder="What are you selling?" className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-red-400" />
+            <label className={labelClass}>Title</label>
+            <input name="title" value={form.title} onChange={handleChange} required placeholder="What are you selling?" className={inputClass} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Price ($)</label>
-            <input name="price" value={form.price} onChange={handleChange} required type="number" placeholder="0" className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-red-400" />
+            <label className={labelClass}>Price ($)</label>
+            <input name="price" value={form.price} onChange={handleChange} required type="number" placeholder="0" className={inputClass} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
-            <select name="category" value={form.category} onChange={handleChange} required className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-red-400">
+            <label className={labelClass}>Category</label>
+            <select name="category" value={form.category} onChange={handleChange} required className={inputClass}>
               <option value="">Select a category</option>
               {categories.map((cat) => <option key={cat} value={cat}>{cat}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Condition</label>
-            <select name="condition" value={form.condition} onChange={handleChange} required className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-red-400">
+            <label className={labelClass}>Condition</label>
+            <select name="condition" value={form.condition} onChange={handleChange} required className={inputClass}>
               <option value="">Select condition</option>
               {conditions.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-            <textarea name="description" value={form.description} onChange={handleChange} placeholder="Describe your item..." rows={4} className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-red-400 resize-none" />
+            <label className={labelClass}>Description</label>
+            <textarea name="description" value={form.description} onChange={handleChange} placeholder="Describe your item..." rows={4} className={`${inputClass} resize-none`} />
           </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}
-          <button type="submit" disabled={loading} className="w-full bg-red-500 text-white py-3 rounded-full font-medium hover:bg-red-600 transition disabled:opacity-50">
+          <Button type="submit" disabled={loading} className="w-full py-3">
             {loading ? "Listing..." : "List item"}
-          </button>
+          </Button>
         </form>
       </main>
     </div>
