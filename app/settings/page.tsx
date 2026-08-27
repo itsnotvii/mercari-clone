@@ -1,10 +1,12 @@
- "use client";
+"use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabase";
-import { ArrowLeft, Camera, Save, Lock, Mail } from "lucide-react";
+import { Camera, Save, Lock, Mail } from "lucide-react";
+import AppNav from "../components/ui/AppNav";
+import Card from "../components/ui/Card";
+import Button from "../components/ui/Button";
 
 export default function SettingsPage() {
   const router = useRouter();
@@ -121,153 +123,135 @@ export default function SettingsPage() {
     }
   };
 
+  const inputClass = "w-full px-3.5 py-2.5 rounded-[10px] border border-[var(--color-border)] bg-[var(--color-subtle)] text-sm outline-none focus:border-[var(--color-brand)] transition-colors box-border";
+  const labelClass = "block text-xs font-semibold text-[var(--color-muted)] mb-1.5";
+  const isError = message.includes("wrong") || message.includes("match");
+
   if (loading) return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'DM Sans', sans-serif" }}>
-      <p style={{ color: "rgba(0,0,0,0.3)", fontSize: 14 }}>Loading...</p>
+    <div className="min-h-screen flex items-center justify-center">
+      <p className="text-[var(--color-muted)] text-sm">Loading...</p>
     </div>
   );
 
-  const border = "rgba(0,0,0,0.07)";
-  const muted = "rgba(0,0,0,0.4)";
-  const input = "rgba(0,0,0,0.04)";
-
   return (
-    <div style={{ minHeight: "100vh", background: "#f9f9fb", fontFamily: "'DM Sans', sans-serif" }}>
-      <nav style={{ background: "rgba(255,255,255,0.9)", borderBottom: `1px solid ${border}`, backdropFilter: "blur(20px)", position: "sticky", top: 0, zIndex: 10 }}>
-        <div style={{ maxWidth: 720, margin: "0 auto", padding: "0 24px", height: 60, display: "flex", alignItems: "center", gap: 16 }}>
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none", color: muted, fontSize: 13, fontWeight: 600 }}>
-            <ArrowLeft size={15} /> Back
-          </Link>
-          <span style={{ fontWeight: 800, fontSize: 16, color: "#0a0a0f", marginLeft: 8 }}>Settings</span>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)]">
+      <AppNav maxWidthClassName="max-w-[720px]" rightSlot={<span className="font-extrabold text-base">Settings</span>} />
 
-      <main style={{ maxWidth: 720, margin: "0 auto", padding: "32px 24px 64px" }}>
-
+      <main className="max-w-[720px] mx-auto px-6 py-8 pb-16">
         {message && (
-          <div style={{ marginBottom: 20, padding: "12px 16px", borderRadius: 10, background: message.includes("wrong") || message.includes("match") ? "rgba(255,59,59,0.08)" : "rgba(34,197,94,0.08)", border: `1px solid ${message.includes("wrong") || message.includes("match") ? "rgba(255,59,59,0.2)" : "rgba(34,197,94,0.2)"}`, color: message.includes("wrong") || message.includes("match") ? "#ff3b3b" : "#16a34a", fontSize: 13, fontWeight: 500 }}>
+          <div className={`mb-5 px-4 py-3 rounded-[10px] border text-[13px] font-medium ${
+            isError
+              ? "bg-red-500/10 border-red-500/20 text-red-500"
+              : "bg-green-500/10 border-green-500/20 text-green-600"
+          }`}>
             {message}
           </div>
         )}
 
         {/* Avatar + profile */}
-        <div style={{ background: "#fff", borderRadius: 16, border: `1px solid ${border}`, padding: 24, marginBottom: 16 }}>
-          <h2 style={{ fontSize: 15, fontWeight: 700, marginBottom: 20 }}>Profile</h2>
+        <Card className="mb-4">
+          <h2 className="text-[15px] font-bold mb-5">Profile</h2>
 
-          {/* Avatar */}
-          <div style={{ display: "flex", alignItems: "center", gap: 16, marginBottom: 24 }}>
-            <div style={{ position: "relative" }}>
-              <div style={{ width: 72, height: 72, borderRadius: "50%", background: "linear-gradient(135deg, #ff3b3b, #ff6b35)", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+          <div className="flex items-center gap-4 mb-6">
+            <div className="relative">
+              <div className="w-[72px] h-[72px] rounded-full bg-[linear-gradient(135deg,var(--color-brand-start),var(--color-brand-end))] flex items-center justify-center overflow-hidden shadow-[var(--shadow-glow-brand-sm)]">
                 {avatarPreview ? (
-                  <img src={avatarPreview} alt="avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={avatarPreview} alt="avatar" className="w-full h-full object-cover" />
                 ) : (
-                  <span style={{ color: "#fff", fontSize: 24, fontWeight: 800 }}>{form.username?.[0]?.toUpperCase() || "?"}</span>
+                  <span className="text-white text-2xl font-extrabold">{form.username?.[0]?.toUpperCase() || "?"}</span>
                 )}
               </div>
               <button
                 onClick={() => document.getElementById("avatar-input")?.click()}
-                style={{ position: "absolute", bottom: 0, right: 0, width: 24, height: 24, borderRadius: "50%", background: "#0a0a0f", border: "2px solid #fff", display: "flex", alignItems: "center", justifyContent: "center", cursor: "pointer" }}
+                className="absolute bottom-0 right-0 w-6 h-6 rounded-full bg-[var(--color-text)] border-2 border-[var(--color-surface)] flex items-center justify-center"
               >
-                <Camera size={11} color="#fff" />
+                <Camera size={11} className="text-[var(--color-bg)]" />
               </button>
-              <input id="avatar-input" type="file" accept="image/*" onChange={handleAvatar} style={{ display: "none" }} />
+              <input id="avatar-input" type="file" accept="image/*" onChange={handleAvatar} className="hidden" />
             </div>
             <div>
-              <p style={{ fontSize: 15, fontWeight: 700, color: "#0a0a0f" }}>{form.username || "No username"}</p>
-              <p style={{ fontSize: 12, color: muted, marginTop: 2 }}>Click the camera to update your photo</p>
+              <p className="text-[15px] font-bold">{form.username || "No username"}</p>
+              <p className="text-xs text-[var(--color-muted)] mt-0.5">Click the camera to update your photo</p>
             </div>
           </div>
 
-          {/* Username */}
-          <div style={{ marginBottom: 16 }}>
-            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: muted, marginBottom: 6 }}>Username</label>
+          <div className="mb-4">
+            <label className={labelClass}>Username</label>
             <input
               value={form.username}
               onChange={(e) => setForm({ ...form, username: e.target.value })}
               placeholder="your_username"
-              style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: `1px solid ${border}`, background: input, fontSize: 13, outline: "none", boxSizing: "border-box", color: "#0a0a0f" }}
+              className={inputClass}
             />
           </div>
 
-          {/* Bio */}
-          <div style={{ marginBottom: 20 }}>
-            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: muted, marginBottom: 6 }}>Bio</label>
+          <div className="mb-5">
+            <label className={labelClass}>Bio</label>
             <textarea
               value={form.bio}
               onChange={(e) => setForm({ ...form, bio: e.target.value })}
               placeholder="Tell people a bit about yourself..."
               rows={3}
-              style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: `1px solid ${border}`, background: input, fontSize: 13, outline: "none", boxSizing: "border-box", resize: "none", color: "#0a0a0f", fontFamily: "'DM Sans', sans-serif" }}
+              className={`${inputClass} resize-none`}
             />
           </div>
 
-          <button
-            onClick={handleSaveProfile}
-            disabled={saving}
-            style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 18px", borderRadius: 10, background: "#0a0a0f", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", border: "none", opacity: saving ? 0.5 : 1 }}
-          >
+          <Button onClick={handleSaveProfile} disabled={saving} className="text-[13px] py-2.5">
             <Save size={13} /> {saving ? "Saving..." : "Save profile"}
-          </button>
-        </div>
+          </Button>
+        </Card>
 
         {/* Email */}
-        <div style={{ background: "#fff", borderRadius: 16, border: `1px solid ${border}`, padding: 24, marginBottom: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
-            <Mail size={15} color={muted} />
-            <h2 style={{ fontSize: 15, fontWeight: 700 }}>Email address</h2>
+        <Card className="mb-4">
+          <div className="flex items-center gap-2 mb-5">
+            <Mail size={15} className="text-[var(--color-muted)]" />
+            <h2 className="text-[15px] font-bold">Email address</h2>
           </div>
-          <div style={{ marginBottom: 16 }}>
-            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: muted, marginBottom: 6 }}>Email</label>
+          <div className="mb-4">
+            <label className={labelClass}>Email</label>
             <input
               type="email"
               value={form.email}
               onChange={(e) => setForm({ ...form, email: e.target.value })}
-              style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: `1px solid ${border}`, background: input, fontSize: 13, outline: "none", boxSizing: "border-box", color: "#0a0a0f" }}
+              className={inputClass}
             />
           </div>
-          <button
-            onClick={handleChangeEmail}
-            disabled={saving}
-            style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 18px", borderRadius: 10, background: "#0a0a0f", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", border: "none", opacity: saving ? 0.5 : 1 }}
-          >
+          <Button onClick={handleChangeEmail} disabled={saving} className="text-[13px] py-2.5">
             <Save size={13} /> Update email
-          </button>
-        </div>
+          </Button>
+        </Card>
 
         {/* Password */}
-        <div style={{ background: "#fff", borderRadius: 16, border: `1px solid ${border}`, padding: 24 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
-            <Lock size={15} color={muted} />
-            <h2 style={{ fontSize: 15, fontWeight: 700 }}>Password</h2>
+        <Card>
+          <div className="flex items-center gap-2 mb-5">
+            <Lock size={15} className="text-[var(--color-muted)]" />
+            <h2 className="text-[15px] font-bold">Password</h2>
           </div>
-          <div style={{ marginBottom: 12 }}>
-            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: muted, marginBottom: 6 }}>New password</label>
+          <div className="mb-3">
+            <label className={labelClass}>New password</label>
             <input
               type="password"
               value={passwords.new}
               onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
               placeholder="••••••••"
-              style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: `1px solid ${border}`, background: input, fontSize: 13, outline: "none", boxSizing: "border-box", color: "#0a0a0f" }}
+              className={inputClass}
             />
           </div>
-          <div style={{ marginBottom: 20 }}>
-            <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: muted, marginBottom: 6 }}>Confirm new password</label>
+          <div className="mb-5">
+            <label className={labelClass}>Confirm new password</label>
             <input
               type="password"
               value={passwords.confirm}
               onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
               placeholder="••••••••"
-              style={{ width: "100%", padding: "10px 14px", borderRadius: 10, border: `1px solid ${border}`, background: input, fontSize: 13, outline: "none", boxSizing: "border-box", color: "#0a0a0f" }}
+              className={inputClass}
             />
           </div>
-          <button
-            onClick={handleChangePassword}
-            disabled={saving}
-            style={{ display: "flex", alignItems: "center", gap: 6, padding: "9px 18px", borderRadius: 10, background: "#0a0a0f", color: "#fff", fontSize: 13, fontWeight: 700, cursor: "pointer", border: "none", opacity: saving ? 0.5 : 1 }}
-          >
+          <Button onClick={handleChangePassword} disabled={saving} className="text-[13px] py-2.5">
             <Lock size={13} /> Update password
-          </button>
-        </div>
+          </Button>
+        </Card>
       </main>
     </div>
   );

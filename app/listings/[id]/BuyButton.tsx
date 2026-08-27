@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { supabase } from "@/lib/supabase";
-import { Heart, Share2, Check } from "lucide-react";
+import { Share2, Check } from "lucide-react";
+import Button from "../../components/ui/Button";
 
 export default function BuyButton({ listingId, title, price, image, sellerId }: { listingId: number; title: string; price: number; image: string; sellerId: string; }) {
   const [buyLoading, setBuyLoading] = useState(false);
@@ -14,12 +15,12 @@ export default function BuyButton({ listingId, title, price, image, sellerId }: 
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
-  try {
-    const key = "recently_viewed";
-    const existing: number[] = JSON.parse(localStorage.getItem(key) || "[]");
-    const updated = [listingId, ...existing.filter((id) => id !== listingId)].slice(0, 6);
-    localStorage.setItem(key, JSON.stringify(updated));
-  } catch {}
+    try {
+      const key = "recently_viewed";
+      const existing: number[] = JSON.parse(localStorage.getItem(key) || "[]");
+      const updated = [listingId, ...existing.filter((id) => id !== listingId)].slice(0, 6);
+      localStorage.setItem(key, JSON.stringify(updated));
+    } catch {}
   }, [listingId]);
 
   const handleBuy = async () => {
@@ -76,51 +77,52 @@ export default function BuyButton({ listingId, title, price, image, sellerId }: 
       <div className="mt-6 flex flex-col gap-3">
         <button
           onClick={handleShare}
-          style={{
-            display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-            padding: "10px 16px", borderRadius: 10, width: "100%",
-            border: "1.5px solid rgba(0,0,0,0.08)",
-            background: copied ? "rgba(34,197,94,0.08)" : "rgba(0,0,0,0.03)",
-            color: copied ? "#16a34a" : "rgba(0,0,0,0.5)",
-            fontSize: 13, fontWeight: 600, cursor: "pointer", transition: "all 0.2s",
-          }}
+          className={`flex items-center justify-center gap-2 py-2.5 px-4 rounded-[10px] w-full border-[1.5px] text-[13px] font-semibold transition-all ${
+            copied
+              ? "bg-green-500/10 border-green-500/20 text-green-600"
+              : "bg-black/[0.03] border-black/10 text-[var(--color-muted)]"
+          }`}
         >
           {copied ? <><Check size={14} /> Copied to clipboard!</> : <><Share2 size={14} /> Share listing</>}
         </button>
-        <button onClick={handleBuy} disabled={buyLoading} className="w-full bg-red-500 text-white py-3 rounded-full font-medium hover:bg-red-600 transition disabled:opacity-50">
+        <Button onClick={handleBuy} disabled={buyLoading} className="w-full py-3">
           {buyLoading ? "Loading..." : `Buy Now — $${price}`}
-        </button>
-        <button onClick={() => { setShowOffer(true); setOfferStatus("idle"); setOfferAmount(""); }} className="w-full border border-red-500 text-red-500 py-3 rounded-full font-medium hover:bg-red-50 transition">
+        </Button>
+        <Button
+          variant="secondary"
+          onClick={() => { setShowOffer(true); setOfferStatus("idle"); setOfferAmount(""); }}
+          className="w-full py-3 border-[var(--color-brand)] text-[var(--color-brand)] bg-transparent hover:bg-red-500/5"
+        >
           Make an Offer
-        </button>
+        </Button>
       </div>
       {showOffer && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center px-4" style={{ background: "rgba(0,0,0,0.4)", backdropFilter: "blur(4px)" }} onClick={() => setShowOffer(false)}>
-          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center px-4 bg-black/40 backdrop-blur-sm" onClick={() => setShowOffer(false)}>
+          <div className="bg-[var(--color-surface)] rounded-2xl p-6 w-full max-w-sm shadow-xl" onClick={(e) => e.stopPropagation()}>
             {offerStatus === "success" ? (
               <div className="text-center py-4">
                 <p className="text-4xl mb-3">🎉</p>
                 <h3 className="text-lg font-bold mb-1">Offer Sent!</h3>
-                <p className="text-sm text-gray-400 mb-5">The seller will review your offer of ${offerAmount}.</p>
-                <button onClick={() => setShowOffer(false)} className="w-full bg-red-500 text-white py-2.5 rounded-full text-sm font-medium hover:bg-red-600 transition">Done</button>
+                <p className="text-sm text-[var(--color-muted)] mb-5">The seller will review your offer of ${offerAmount}.</p>
+                <Button onClick={() => setShowOffer(false)} className="w-full py-2.5 text-sm">Done</Button>
               </div>
             ) : (
               <>
                 <h3 className="text-lg font-bold mb-1">Make an Offer</h3>
-                <p className="text-sm text-gray-400 mb-5">Listed at <span className="font-semibold text-gray-700">${price}</span></p>
+                <p className="text-sm text-[var(--color-muted)] mb-5">Listed at <span className="font-semibold text-[var(--color-text)]">${price}</span></p>
                 <div className="relative mb-4">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-medium">$</span>
-                  <input type="number" value={offerAmount} onChange={(e) => setOfferAmount(e.target.value)} placeholder="Your offer" className="w-full border border-gray-300 rounded-xl pl-8 pr-4 py-2.5 text-sm focus:outline-none focus:border-red-400" />
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-muted)] font-medium">$</span>
+                  <input type="number" value={offerAmount} onChange={(e) => setOfferAmount(e.target.value)} placeholder="Your offer" className="w-full border border-[var(--color-border)] bg-[var(--color-subtle)] rounded-xl pl-8 pr-4 py-2.5 text-sm outline-none focus:border-[var(--color-brand)]" />
                 </div>
                 <div className="flex gap-2 mb-4">
                   {[0.9, 0.8, 0.7].map((pct) => (
-                    <button key={pct} onClick={() => setOfferAmount(String(Math.round(price * pct)))} className="flex-1 text-xs py-1.5 rounded-lg border border-gray-200 text-gray-500 hover:border-red-300 hover:text-red-500 transition">${Math.round(price * pct)}</button>
+                    <button key={pct} onClick={() => setOfferAmount(String(Math.round(price * pct)))} className="flex-1 text-xs py-1.5 rounded-lg border border-[var(--color-border)] text-[var(--color-muted)] hover:border-[var(--color-brand)] hover:text-[var(--color-brand)] transition-colors">${Math.round(price * pct)}</button>
                   ))}
                 </div>
                 {errorMsg && <p className="text-red-500 text-xs mb-3">{errorMsg}</p>}
                 <div className="flex gap-2">
-                  <button onClick={() => setShowOffer(false)} className="flex-1 border border-gray-200 text-gray-500 py-2.5 rounded-full text-sm font-medium hover:bg-gray-50 transition">Cancel</button>
-                  <button onClick={handleOffer} disabled={offerLoading || !offerAmount} className="flex-1 bg-red-500 text-white py-2.5 rounded-full text-sm font-medium hover:bg-red-600 transition disabled:opacity-50">{offerLoading ? "Sending..." : "Send Offer"}</button>
+                  <button onClick={() => setShowOffer(false)} className="flex-1 border border-[var(--color-border)] text-[var(--color-muted)] py-2.5 rounded-full text-sm font-semibold hover:bg-black/5 transition-colors">Cancel</button>
+                  <Button onClick={handleOffer} disabled={offerLoading || !offerAmount} className="flex-1 py-2.5 text-sm">{offerLoading ? "Sending..." : "Send Offer"}</Button>
                 </div>
               </>
             )}

@@ -14,14 +14,8 @@ type Listing = {
   condition: string;
 };
 
-export default function RecentlyViewed({ dark }: { dark: boolean }) {
+export default function RecentlyViewed() {
   const [listings, setListings] = useState<Listing[]>([]);
-
-  useEffect(() => {
-    const ids = getRecentIds();
-    if (ids.length === 0) return;
-    fetchListings(ids);
-  }, []);
 
   function getRecentIds(): number[] {
     try {
@@ -47,39 +41,35 @@ export default function RecentlyViewed({ dark }: { dark: boolean }) {
     }
   }
 
+  useEffect(() => {
+    const ids = getRecentIds();
+    if (ids.length === 0) return;
+    fetchListings(ids);
+  }, []);
+
   if (listings.length === 0) return null;
 
-  const border = dark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.06)";
-  const card = dark ? "#1c1c22" : "#ffffff";
-  const text = dark ? "#f5f5f7" : "#1a1a1a";
-  const muted = dark ? "rgba(255,255,255,0.38)" : "rgba(0,0,0,0.38)";
-  const subtle = dark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)";
-
   return (
-    <div style={{ maxWidth: 1400, margin: "0 auto", padding: "24px 32px 0" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-        <Clock size={15} style={{ color: muted }} />
-        <h3 style={{ fontSize: 14, fontWeight: 700, color: text, margin: 0 }}>Recently viewed</h3>
+    <div className="max-w-[1400px] mx-auto px-8 pt-6">
+      <div className="flex items-center gap-2 mb-3.5">
+        <Clock size={15} className="text-[var(--color-muted)]" />
+        <h3 className="text-sm font-bold m-0">Recently viewed</h3>
       </div>
-      <div style={{ display: "flex", gap: 12, overflowX: "auto", scrollbarWidth: "none", paddingBottom: 4 }}>
+      <div className="flex gap-3 overflow-x-auto scrollbar-hide pb-1">
         {listings.map((listing) => (
-          <Link key={listing.id} href={`/listings/${listing.id}`} style={{ textDecoration: "none", flexShrink: 0 }}>
-            <div
-              style={{ width: 130, borderRadius: 12, overflow: "hidden", background: card, border: `1px solid ${border}`, boxShadow: dark ? "0 2px 12px rgba(0,0,0,0.3)" : "0 1px 6px rgba(0,0,0,0.05)", transition: "transform 0.15s" }}
-              onMouseEnter={(e) => (e.currentTarget.style.transform = "translateY(-2px)")}
-              onMouseLeave={(e) => (e.currentTarget.style.transform = "translateY(0)")}
-            >
-              <div style={{ position: "relative", paddingTop: "100%", overflow: "hidden" }}>
+          <Link key={listing.id} href={`/listings/${listing.id}`} className="no-underline shrink-0">
+            <div className="w-[130px] rounded-xl overflow-hidden bg-[var(--color-surface)] border border-[var(--color-border)] shadow-[var(--shadow-card)] transition-transform duration-150 hover:-translate-y-0.5">
+              <div className="relative pt-[100%] overflow-hidden">
                 <Image
                   src={listing.image_url || "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400"}
                   alt={listing.title}
                   fill
-                  style={{ objectFit: "cover" }}
+                  className="object-cover"
                 />
               </div>
-              <div style={{ padding: "8px 10px 10px" }}>
-                <p style={{ fontSize: 11.5, fontWeight: 600, color: text, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: 3 }}>{listing.title}</p>
-                <p style={{ fontSize: 13, fontWeight: 800, color: text }}>${listing.price}</p>
+              <div className="px-2.5 pb-2.5 pt-2">
+                <p className="text-[11.5px] font-semibold truncate mb-1">{listing.title}</p>
+                <p className="text-[13px] font-extrabold">${listing.price}</p>
               </div>
             </div>
           </Link>
@@ -89,12 +79,12 @@ export default function RecentlyViewed({ dark }: { dark: boolean }) {
             localStorage.removeItem("recently_viewed");
             setListings([]);
           }}
-          style={{ flexShrink: 0, alignSelf: "center", fontSize: 11.5, color: muted, background: "none", border: "none", cursor: "pointer", padding: "4px 8px", borderRadius: 6 }}
+          className="shrink-0 self-center text-[11.5px] text-[var(--color-muted)] px-2 py-1 rounded-md hover:text-[var(--color-brand)] transition-colors"
         >
           Clear
         </button>
       </div>
-      <div style={{ height: 1, background: border, marginTop: 20 }} />
+      <div className="h-px bg-[var(--color-border)] mt-5" />
     </div>
   );
 }

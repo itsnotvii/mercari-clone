@@ -5,7 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import BuyButton from "./BuyButton";
-import { ArrowLeft, Star } from "lucide-react";
+import { Star } from "lucide-react";
+import AppNav from "../../components/ui/AppNav";
+import Badge from "../../components/ui/Badge";
 
 type Listing = {
   id: number;
@@ -21,51 +23,55 @@ type Listing = {
   profiles: { username: string } | null;
 };
 
+// Runtime-keyed by Supabase's freeform `condition` string, so this stays a
+// plain object rather than a Tailwind class — Tailwind can't safelist
+// dynamically-keyed classes.
+const conditionColor: Record<string, string> = {
+  "New": "#16a34a",
+  "Like New": "#0ea5e9",
+  "Good": "#f59e0b",
+  "Fair": "#ef4444",
+};
+
 export default function ListingPageClient({ id }: { id: string }) {
   const [listing, setListing] = useState<Listing | null>(null);
   const [loading, setLoading] = useState(true);
 
+  async function fetchListing() {
+    const { data } = await supabase
+      .from("listings")
+      .select("*, profiles(username)")
+      .eq("id", id)
+      .single();
+    setListing(data);
+    setLoading(false);
+  }
+
   useEffect(() => {
-    async function fetch() {
-      const { data } = await supabase
-        .from("listings")
-        .select("*, profiles(username)")
-        .eq("id", id)
-        .single();
-      setListing(data);
-      setLoading(false);
-    }
-    fetch();
+    fetchListing();
   }, [id]);
 
-  const border = "rgba(0,0,0,0.07)";
-  const muted = "rgba(0,0,0,0.4)";
-  const subtle = "rgba(0,0,0,0.04)";
-
   if (loading) return (
-    <div style={{ minHeight: "100vh", background: "#f5f5f7", fontFamily: "'DM Sans', sans-serif" }}>
-      <nav style={{ background: "rgba(255,255,255,0.92)", borderBottom: `1px solid ${border}`, height: 64, display: "flex", alignItems: "center", padding: "0 32px", gap: 16 }}>
-        <div style={{ width: 50, height: 16, borderRadius: 6, background: subtle }} />
-        <div style={{ width: 100, height: 20, borderRadius: 6, background: subtle, margin: "0 auto" }} />
-      </nav>
-      <main style={{ maxWidth: 1000, margin: "0 auto", padding: "32px 24px" }}>
-        <div style={{ background: "#fff", borderRadius: 20, overflow: "hidden", border: `1px solid ${border}`, display: "flex" }}>
-          <div style={{ width: "50%", minHeight: 450, background: subtle, flexShrink: 0, animation: "pulse 1.5s ease-in-out infinite" }} />
-          <div style={{ flex: 1, padding: 32, display: "flex", flexDirection: "column", gap: 16 }}>
-            <div style={{ display: "flex", gap: 8 }}>
-              <div style={{ height: 24, width: 80, borderRadius: 20, background: subtle }} />
-              <div style={{ height: 24, width: 80, borderRadius: 20, background: subtle }} />
+    <div className="min-h-screen bg-[var(--color-bg)]">
+      <AppNav backHref="/" maxWidthClassName="max-w-[1000px]" />
+      <main className="max-w-[1000px] mx-auto px-6 py-8">
+        <div className="bg-[var(--color-surface)] rounded-[20px] overflow-hidden border border-[var(--color-border)] flex">
+          <div className="w-1/2 min-h-[450px] bg-[var(--color-subtle)] shrink-0 animate-pulse" />
+          <div className="flex-1 p-8 flex flex-col gap-4">
+            <div className="flex gap-2">
+              <div className="h-6 w-20 rounded-full bg-[var(--color-subtle)] animate-pulse" />
+              <div className="h-6 w-20 rounded-full bg-[var(--color-subtle)] animate-pulse" />
             </div>
-            <div style={{ height: 28, width: "85%", borderRadius: 8, background: subtle }} />
-            <div style={{ height: 20, width: "60%", borderRadius: 8, background: subtle }} />
-            <div style={{ height: 40, width: "45%", borderRadius: 8, background: subtle }} />
-            <div style={{ height: 80, borderRadius: 10, background: subtle }} />
-            <div style={{ height: 1, background: subtle }} />
-            <div style={{ height: 60, borderRadius: 12, background: subtle }} />
-            <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: 10 }}>
-              <div style={{ height: 44, borderRadius: 10, background: subtle }} />
-              <div style={{ height: 44, borderRadius: 10, background: subtle }} />
-              <div style={{ height: 44, borderRadius: 10, background: subtle }} />
+            <div className="h-7 w-[85%] rounded-lg bg-[var(--color-subtle)] animate-pulse" />
+            <div className="h-5 w-3/5 rounded-lg bg-[var(--color-subtle)] animate-pulse" />
+            <div className="h-10 w-[45%] rounded-lg bg-[var(--color-subtle)] animate-pulse" />
+            <div className="h-20 rounded-[10px] bg-[var(--color-subtle)] animate-pulse" />
+            <div className="h-px bg-[var(--color-subtle)]" />
+            <div className="h-[60px] rounded-xl bg-[var(--color-subtle)] animate-pulse" />
+            <div className="mt-auto flex flex-col gap-2.5">
+              <div className="h-11 rounded-[10px] bg-[var(--color-subtle)] animate-pulse" />
+              <div className="h-11 rounded-[10px] bg-[var(--color-subtle)] animate-pulse" />
+              <div className="h-11 rounded-[10px] bg-[var(--color-subtle)] animate-pulse" />
             </div>
           </div>
         </div>
@@ -74,11 +80,11 @@ export default function ListingPageClient({ id }: { id: string }) {
   );
 
   if (!listing) return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "'DM Sans', sans-serif" }}>
-      <div style={{ textAlign: "center" }}>
-        <p style={{ fontSize: 48, marginBottom: 12 }}>😕</p>
-        <p style={{ fontSize: 16, fontWeight: 700, color: "#1a1a1a", marginBottom: 6 }}>Listing not found</p>
-        <Link href="/" style={{ fontSize: 13, color: "#ff3b3b", fontWeight: 600, textDecoration: "none" }}>← Back to listings</Link>
+    <div className="min-h-screen flex items-center justify-center">
+      <div className="text-center">
+        <p className="text-5xl mb-3">😕</p>
+        <p className="text-base font-bold mb-1.5">Listing not found</p>
+        <Link href="/" className="text-[13px] text-[var(--color-brand)] font-semibold no-underline">← Back to listings</Link>
       </div>
     </div>
   );
@@ -86,86 +92,67 @@ export default function ListingPageClient({ id }: { id: string }) {
   const seller = listing.profiles?.username || "unknown";
   const image = listing.image_url || "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800";
 
-  const conditionColor: Record<string, string> = {
-    "New": "#16a34a",
-    "Like New": "#0ea5e9",
-    "Good": "#f59e0b",
-    "Fair": "#ef4444",
-  };
-
   return (
-    <div style={{ minHeight: "100vh", background: "#f5f5f7", fontFamily: "'DM Sans', sans-serif" }}>
-      <nav style={{ background: "rgba(255,255,255,0.92)", borderBottom: `1px solid ${border}`, backdropFilter: "blur(24px)", position: "sticky", top: 0, zIndex: 10 }}>
-        <div style={{ maxWidth: 1000, margin: "0 auto", padding: "0 24px", height: 64, display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <Link href="/" style={{ display: "flex", alignItems: "center", gap: 6, textDecoration: "none", color: muted, fontSize: 13, fontWeight: 600 }}>
-            <ArrowLeft size={15} /> Back
-          </Link>
-          <Link href="/" style={{ fontWeight: 800, fontSize: 16, color: "#1a1a1a", textDecoration: "none", letterSpacing: "-0.5px" }}>mercari</Link>
-          <div style={{ width: 60 }} />
-        </div>
-      </nav>
+    <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)]">
+      <AppNav backHref="/" maxWidthClassName="max-w-[1000px]" />
 
-      <main style={{ maxWidth: 1000, margin: "0 auto", padding: "32px 24px 64px" }}>
-        <div style={{ background: "#fff", borderRadius: 20, overflow: "hidden", border: `1px solid ${border}`, boxShadow: "0 4px 24px rgba(0,0,0,0.06)", display: "flex" }}>
+      <main className="max-w-[1000px] mx-auto px-6 py-8 pb-16">
+        <div className="bg-[var(--color-surface)] rounded-[20px] overflow-hidden border border-[var(--color-border)] shadow-[var(--shadow-card)] flex">
           {/* Image */}
-          <div style={{ position: "relative", width: "50%", flexShrink: 0, minHeight: 450 }}>
+          <div className="relative w-1/2 shrink-0 min-h-[450px]">
             <Image src={image} alt={listing.title} fill style={{ objectFit: "cover" }} />
           </div>
 
           {/* Details */}
-          <div style={{ flex: 1, padding: "32px", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+          <div className="flex-1 p-8 flex flex-col justify-between">
             <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 14 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 20, background: subtle, color: muted }}>
-                  {listing.category}
-                </span>
-                <span style={{ fontSize: 11, fontWeight: 700, padding: "4px 10px", borderRadius: 20, background: `${conditionColor[listing.condition] || muted}18`, color: conditionColor[listing.condition] || muted }}>
+              <div className="flex items-center gap-2 mb-3.5">
+                <Badge variant="neutral">{listing.category}</Badge>
+                <Badge style={{ background: `${conditionColor[listing.condition] || "rgba(0,0,0,0.4)"}18`, color: conditionColor[listing.condition] || "rgba(0,0,0,0.4)" }}>
                   {listing.condition}
-                </span>
+                </Badge>
               </div>
 
-              <h1 style={{ fontSize: 22, fontWeight: 800, color: "#1a1a1a", lineHeight: 1.3, marginBottom: 8, letterSpacing: "-0.5px" }}>
+              <h1 className="text-[22px] font-extrabold leading-tight mb-2 tracking-tight">
                 {listing.title}
               </h1>
 
-              <p style={{ fontSize: 34, fontWeight: 900, color: "#1a1a1a", marginBottom: 16, letterSpacing: "-1px" }}>
+              <p className="text-[34px] font-black mb-4 tracking-tighter">
                 ${listing.price}
               </p>
 
               {listing.description && (
-                <p style={{ fontSize: 13.5, color: "rgba(0,0,0,0.55)", lineHeight: 1.7, marginBottom: 20 }}>
+                <p className="text-[13.5px] text-[var(--color-muted)] leading-relaxed mb-5">
                   {listing.description}
                 </p>
               )}
 
-              <div style={{ display: "flex", flexDirection: "column", gap: 0, marginBottom: 20 }}>
+              <div className="flex flex-col mb-5">
                 {[
                   { label: "Listed", value: new Date(listing.created_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) },
                   { label: "Likes", value: `${listing.likes} people saved this` },
                 ].map(({ label, value }) => (
-                  <div key={label} style={{ display: "flex", justifyContent: "space-between", padding: "10px 0", borderBottom: `1px solid rgba(0,0,0,0.05)` }}>
-                    <span style={{ fontSize: 12.5, color: muted, fontWeight: 500 }}>{label}</span>
-                    <span style={{ fontSize: 12.5, color: "#1a1a1a", fontWeight: 600 }}>{value}</span>
+                  <div key={label} className="flex justify-between py-2.5 border-b border-[var(--color-border)]">
+                    <span className="text-[12.5px] text-[var(--color-muted)] font-medium">{label}</span>
+                    <span className="text-[12.5px] font-semibold">{value}</span>
                   </div>
                 ))}
               </div>
 
               <Link
                 href={`/profile/${seller}`}
-                style={{ display: "flex", alignItems: "center", gap: 12, padding: "12px 14px", borderRadius: 12, background: subtle, border: `1px solid ${border}`, textDecoration: "none", marginBottom: 24, transition: "background 0.15s" }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "rgba(0,0,0,0.07)")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = subtle)}
+                className="flex items-center gap-3 px-3.5 py-3 rounded-xl bg-[var(--color-subtle)] border border-[var(--color-border)] no-underline mb-6 transition-colors hover:bg-black/[0.07]"
               >
-                <div style={{ width: 38, height: 38, borderRadius: "50%", background: "linear-gradient(135deg, #ff3b3b, #ff6b35)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                  <span style={{ color: "#fff", fontWeight: 800, fontSize: 15 }}>{seller[0].toUpperCase()}</span>
+                <div className="w-[38px] h-[38px] rounded-full bg-[linear-gradient(135deg,var(--color-brand-start),var(--color-brand-end))] flex items-center justify-center shrink-0">
+                  <span className="text-white font-extrabold text-[15px]">{seller[0].toUpperCase()}</span>
                 </div>
                 <div>
-                  <p style={{ fontSize: 13, fontWeight: 700, color: "#1a1a1a", marginBottom: 2 }}>@{seller}</p>
-                  <p style={{ fontSize: 11.5, color: muted }}>View profile →</p>
+                  <p className="text-[13px] font-bold mb-0.5">@{seller}</p>
+                  <p className="text-[11.5px] text-[var(--color-muted)]">View profile →</p>
                 </div>
-                <div style={{ marginLeft: "auto", display: "flex", alignItems: "center", gap: 4 }}>
-                  <Star size={12} style={{ color: "#f59e0b" }} fill="#f59e0b" />
-                  <span style={{ fontSize: 12, color: muted, fontWeight: 600 }}>Seller</span>
+                <div className="ml-auto flex items-center gap-1">
+                  <Star size={12} className="text-amber-500" fill="#f59e0b" />
+                  <span className="text-xs text-[var(--color-muted)] font-semibold">Seller</span>
                 </div>
               </Link>
             </div>

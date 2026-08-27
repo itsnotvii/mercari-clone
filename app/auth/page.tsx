@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { signIn, signUp } from "@/lib/auth";
+import Button from "../components/ui/Button";
 
 export default function AuthPage() {
   const router = useRouter();
@@ -33,35 +34,38 @@ export default function AuthPage() {
     }
   };
 
+  const inputClass = "w-full border border-[var(--color-border)] bg-[var(--color-subtle)] rounded-xl px-4 py-2 text-sm outline-none focus:border-[var(--color-brand)] transition-colors";
+  const labelClass = "block text-sm font-medium text-[var(--color-muted)] mb-1";
+
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
-      <div className="bg-white rounded-2xl shadow-sm p-8 w-full max-w-sm">
-        <Link href="/" className="text-2xl font-bold text-red-500 block mb-6">mercari</Link>
+    <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)] flex items-center justify-center px-4">
+      <div className="bg-[var(--color-surface)] rounded-2xl border border-[var(--color-border)] shadow-[var(--shadow-card-hover)] p-8 w-full max-w-sm">
+        <Link href="/" className="text-2xl font-extrabold text-[var(--color-brand)] block mb-6 no-underline tracking-tight">mercari</Link>
         <h1 className="text-xl font-bold mb-1">{mode === "login" ? "Welcome back" : "Create account"}</h1>
-        <p className="text-gray-400 text-sm mb-6">{mode === "login" ? "Sign in to your account" : "Join the marketplace"}</p>
+        <p className="text-[var(--color-muted)] text-sm mb-6">{mode === "login" ? "Sign in to your account" : "Join the marketplace"}</p>
         <form onSubmit={handleSubmit} className="space-y-4">
           {mode === "signup" && (
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
-              <input value={username} onChange={(e) => setUsername(e.target.value)} required placeholder="coolseller123" className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-red-400" />
+              <label className={labelClass}>Username</label>
+              <input value={username} onChange={(e) => setUsername(e.target.value)} required placeholder="coolseller123" className={inputClass} />
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="you@example.com" className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-red-400" />
+            <label className={labelClass}>Email</label>
+            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="you@example.com" className={inputClass} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
-            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" className="w-full border border-gray-300 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-red-400" />
+            <label className={labelClass}>Password</label>
+            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required placeholder="••••••••" className={inputClass} />
           </div>
           {error && <p className="text-red-500 text-sm">{error}</p>}
-          <button type="submit" disabled={loading} className="w-full bg-red-500 text-white py-3 rounded-full font-medium hover:bg-red-600 transition disabled:opacity-50">
+          <Button type="submit" disabled={loading} className="w-full py-3">
             {loading ? "Loading..." : mode === "login" ? "Sign in" : "Create account"}
-          </button>
+          </Button>
         </form>
-        <p className="text-center text-sm text-gray-400 mt-4">
+        <p className="text-center text-sm text-[var(--color-muted)] mt-4">
           {mode === "login" ? "Don't have an account?" : "Already have an account?"}{" "}
-          <button onClick={() => setMode(mode === "login" ? "signup" : "login")} className="text-red-500 font-medium">
+          <button onClick={() => setMode(mode === "login" ? "signup" : "login")} className="text-[var(--color-brand)] font-semibold">
             {mode === "login" ? "Sign up" : "Sign in"}
           </button>
         </p>

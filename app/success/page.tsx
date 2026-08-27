@@ -1,15 +1,15 @@
-import Link from "next/link";
+import Button from "../components/ui/Button";
 
 export default function SuccessPage() {
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-      <div className="bg-white rounded-2xl p-8 shadow-sm text-center max-w-sm">
+    <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)] flex items-center justify-center px-4">
+      <div className="bg-[var(--color-surface)] rounded-2xl border border-[var(--color-border)] shadow-[var(--shadow-card-hover)] p-8 text-center max-w-sm">
         <div className="text-5xl mb-4">🎉</div>
         <h2 className="text-xl font-bold mb-2">Purchase Complete!</h2>
-        <p className="text-gray-400 text-sm mb-6">Your order has been placed successfully.</p>
-        <Link href="/" className="bg-red-500 text-white px-6 py-3 rounded-full text-sm font-medium hover:bg-red-600 transition">
+        <p className="text-[var(--color-muted)] text-sm mb-6">Your order has been placed successfully.</p>
+        <Button href="/" className="px-6 py-3 text-sm">
           Back to listings
-        </Link>
+        </Button>
       </div>
     </div>
   );
