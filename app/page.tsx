@@ -20,14 +20,15 @@ import { useTheme } from "./components/ThemeProvider";
 const categories = ["All", "Electronics", "Sneakers", "Clothing", "Gaming", "Home", "Bags"];
 type SortOption = "default" | "price-asc" | "price-desc" | "most-liked";
 
-const categoryInfo: Record<string, { icon: LucideIcon; gradient: string }> = {
-  Electronics: { icon: Smartphone, gradient: "linear-gradient(135deg, #3b82f6, #6366f1)" },
-  Sneakers: { icon: Footprints, gradient: "linear-gradient(135deg, #f59e0b, #ec4899)" },
-  Clothing: { icon: Shirt, gradient: "linear-gradient(135deg, #8b5cf6, #ec4899)" },
-  Gaming: { icon: Gamepad2, gradient: "linear-gradient(135deg, #10b981, #06b6d4)" },
-  Home: { icon: HomeIcon, gradient: "linear-gradient(135deg, #14b8a6, #3b82f6)" },
-  Bags: { icon: ShoppingBag, gradient: "linear-gradient(135deg, #f43f5e, #f97316)" },
+const categoryInfo: Record<string, { icon: LucideIcon; gradient: string; image: string }> = {
+  Electronics: { icon: Smartphone, gradient: "linear-gradient(135deg, #3b82f6, #6366f1)", image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=1200" },
+  Sneakers: { icon: Footprints, gradient: "linear-gradient(135deg, #f59e0b, #ec4899)", image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1200" },
+  Clothing: { icon: Shirt, gradient: "linear-gradient(135deg, #8b5cf6, #ec4899)", image: "https://images.unsplash.com/photo-1551537482-f2075a1d41f2?w=1200" },
+  Gaming: { icon: Gamepad2, gradient: "linear-gradient(135deg, #10b981, #06b6d4)", image: "https://images.unsplash.com/photo-1578303512597-81e6cc155b3e?w=1200" },
+  Home: { icon: HomeIcon, gradient: "linear-gradient(135deg, #14b8a6, #3b82f6)", image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200" },
+  Bags: { icon: ShoppingBag, gradient: "linear-gradient(135deg, #f43f5e, #f97316)", image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=1200" },
 };
+const categoryList = categories.filter((c) => c !== "All");
 
 export default function Home() {
   const { theme, toggleTheme } = useTheme();
@@ -110,6 +111,14 @@ export default function Home() {
   }, [listings, search, activeCategory, minPrice, maxPrice, sort, showLikedOnly, liked]);
 
   const trending = useMemo(() => [...listings].sort((a, b) => b.likes - a.likes).slice(0, 8), [listings]);
+
+  const [catIndex, setCatIndex] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCatIndex((prev) => (prev + 1) % categoryList.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)] transition-colors duration-300">
@@ -288,14 +297,11 @@ export default function Home() {
       {/* Banner */}
       <Banner />
 
-      {/* Recently viewed */}
-      <RecentlyViewed />
-
-      {/* Shop by category */}
+      {/* Shop by category — rotating showcase */}
       <div className="max-w-[1400px] mx-auto px-8 pt-8">
         <h2 className="text-[13px] font-bold text-[var(--color-muted)] uppercase tracking-wide mb-4">Shop by category</h2>
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
-          {categories.filter((c) => c !== "All").map((cat) => {
+        <div className="relative rounded-2xl overflow-hidden h-[200px] shadow-[var(--shadow-card)]">
+          {categoryList.map((cat, i) => {
             const info = categoryInfo[cat];
             const Icon = info.icon;
             const count = listings.filter((l) => l.category === cat).length;
@@ -303,21 +309,48 @@ export default function Home() {
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className="group flex flex-col items-center gap-2 p-4 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-[var(--shadow-card)] hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)] transition-all"
+                className={`absolute inset-0 w-full h-full text-left transition-opacity duration-700 ${
+                  i === catIndex ? "opacity-100 z-10" : "opacity-0 z-0 pointer-events-none"
+                }`}
               >
+                <Image src={info.image} alt={cat} fill priority={i === 0} className="object-cover" />
                 <div
-                  className="w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform"
-                  style={{ background: info.gradient }}
-                >
-                  <Icon size={22} />
+                  className="absolute inset-0"
+                  style={{ background: "linear-gradient(to right, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.3) 55%, transparent 100%)" }}
+                />
+                <div className="absolute inset-0 flex items-center px-8 gap-4">
+                  <div
+                    className="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-md shrink-0"
+                    style={{ background: info.gradient }}
+                  >
+                    <Icon size={26} />
+                  </div>
+                  <div>
+                    <p className="text-white text-2xl font-black tracking-tight">{cat}</p>
+                    <p className="text-white/70 text-sm">{count} items available</p>
+                  </div>
                 </div>
-                <span className="text-[12.5px] font-bold">{cat}</span>
-                <span className="text-[10.5px] text-[var(--color-muted)]">{count} items</span>
               </button>
             );
           })}
+          <div className="absolute bottom-4 left-8 flex gap-2 z-20">
+            {categoryList.map((cat, i) => (
+              <button
+                key={cat}
+                onClick={() => setCatIndex(i)}
+                className="h-2 rounded-full transition-all"
+                style={{
+                  background: i === catIndex ? "#fff" : "rgba(255,255,255,0.4)",
+                  width: i === catIndex ? "20px" : "8px",
+                }}
+              />
+            ))}
+          </div>
         </div>
       </div>
+
+      {/* Recently viewed */}
+      <RecentlyViewed />
 
       {/* Trending now */}
       {trending.length > 0 && (
