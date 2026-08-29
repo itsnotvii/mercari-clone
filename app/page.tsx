@@ -345,7 +345,8 @@ export default function Home() {
           <div className="grid gap-5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
             {filtered.map((listing) => {
               const isDemo = listing.id < 0;
-              const card = (
+              return (
+              <Link href={`/listings/${listing.id}`} key={listing.id} className="group no-underline">
                 <div className="rounded-2xl overflow-hidden bg-[var(--color-surface)] border border-[var(--color-border)] shadow-[var(--shadow-card)] transition-all duration-200 group-hover:shadow-[var(--shadow-card-hover)] group-hover:-translate-y-1">
                   {/* Image */}
                   <div className="relative pt-[75%] overflow-hidden">
@@ -366,6 +367,11 @@ export default function Home() {
                         NEW
                       </span>
                     )}
+                    {isDemo && (
+                      <span className="absolute bottom-2.5 left-2.5 text-[10px] font-bold px-2 py-[3px] rounded-md bg-black/40 text-white backdrop-blur-sm">
+                        Demo
+                      </span>
+                    )}
                   </div>
 
                   {/* Info */}
@@ -376,17 +382,11 @@ export default function Home() {
                       <span className="text-[11px] font-semibold text-[var(--color-muted)] bg-[var(--color-subtle)] px-2 py-[3px] rounded-md border border-[var(--color-border)]">
                         {listing.condition}
                       </span>
-                      <span className="text-[11px] text-[var(--color-muted)] font-medium">
-                        {isDemo ? "Demo listing" : `@${listing.seller}`}
-                      </span>
+                      <span className="text-[11px] text-[var(--color-muted)] font-medium">@{listing.seller}</span>
                     </div>
                   </div>
                 </div>
-              );
-              return isDemo ? (
-                <div key={listing.id} className="group cursor-default">{card}</div>
-              ) : (
-                <Link href={`/listings/${listing.id}`} key={listing.id} className="group no-underline">{card}</Link>
+              </Link>
               );
             })}
           </div>

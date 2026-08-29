@@ -155,13 +155,9 @@ export default function Banner() {
 
   return (
     <div className="relative w-full h-[52vh] min-h-[400px] max-h-[600px] overflow-hidden group">
-      {isDemoListing ? (
-        <div className="block w-full h-full cursor-default">{slideContent}</div>
-      ) : (
-        <Link href={slide.type === "listing" ? `/listings/${slide.id}` : slide.href} className="block w-full h-full no-underline">
-          {slideContent}
-        </Link>
-      )}
+      <Link href={slide.type === "listing" ? `/listings/${slide.id}` : slide.href} className="block w-full h-full no-underline">
+        {slideContent}
+      </Link>
 
       {/* Dots */}
       <div className="absolute bottom-6 left-10 sm:left-16 flex gap-2 z-10">
