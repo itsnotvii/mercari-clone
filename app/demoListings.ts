@@ -110,9 +110,9 @@ export const demoListings: DemoListing[] = [
   },
   {
     id: -9, title: "Supreme Box Logo Hoodie", price: 220, category: "Clothing", condition: "Good",
-    image: "https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=600",
+    image: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=600",
     images: [
-      "https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=800",
+      "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?w=800",
       "https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=800",
     ],
     seller: "streetwear", likes: 52,

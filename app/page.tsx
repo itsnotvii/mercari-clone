@@ -6,7 +6,11 @@ import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { Listing } from "./types";
 import { demoListings } from "./demoListings";
-import { Search, Moon, Sun, Heart, SlidersHorizontal, ChevronDown, LogOut, Tag, LayoutList, Settings, PackageSearch } from "lucide-react";
+import {
+  Search, Moon, Sun, Heart, SlidersHorizontal, ChevronDown, LogOut, Tag, LayoutList, Settings, PackageSearch,
+  Smartphone, Footprints, Shirt, Gamepad2, Home as HomeIcon, ShoppingBag, ShieldCheck, Sparkles,
+} from "lucide-react";
+import type { LucideIcon } from "lucide-react";
 import Banner from "./components/Banner";
 import RecentlyViewed from "./components/RecentlyViewed";
 import Button from "./components/ui/Button";
@@ -14,6 +18,15 @@ import { useTheme } from "./components/ThemeProvider";
 
 const categories = ["All", "Electronics", "Sneakers", "Clothing", "Gaming", "Home", "Bags"];
 type SortOption = "default" | "price-asc" | "price-desc" | "most-liked";
+
+const categoryInfo: Record<string, { icon: LucideIcon; gradient: string }> = {
+  Electronics: { icon: Smartphone, gradient: "linear-gradient(135deg, #3b82f6, #6366f1)" },
+  Sneakers: { icon: Footprints, gradient: "linear-gradient(135deg, #f59e0b, #ec4899)" },
+  Clothing: { icon: Shirt, gradient: "linear-gradient(135deg, #8b5cf6, #ec4899)" },
+  Gaming: { icon: Gamepad2, gradient: "linear-gradient(135deg, #10b981, #06b6d4)" },
+  Home: { icon: HomeIcon, gradient: "linear-gradient(135deg, #14b8a6, #3b82f6)" },
+  Bags: { icon: ShoppingBag, gradient: "linear-gradient(135deg, #f43f5e, #f97316)" },
+};
 
 export default function Home() {
   const { theme, toggleTheme } = useTheme();
@@ -94,6 +107,8 @@ export default function Home() {
     if (sort === "most-liked") result = [...result].sort((a, b) => b.likes - a.likes);
     return result;
   }, [listings, search, activeCategory, minPrice, maxPrice, sort, showLikedOnly, liked]);
+
+  const trending = useMemo(() => [...listings].sort((a, b) => b.likes - a.likes).slice(0, 8), [listings]);
 
   return (
     <div className="min-h-screen bg-[var(--color-bg)] text-[var(--color-text)] transition-colors duration-300">
@@ -229,11 +244,85 @@ export default function Home() {
         </div>
       </nav>
 
+      {/* Trust strip */}
+      <div className="max-w-[1400px] mx-auto px-8 pt-5 flex flex-wrap items-center gap-x-7 gap-y-2 text-[12px] text-[var(--color-muted)] font-medium">
+        <span className="flex items-center gap-1.5"><PackageSearch size={13} /> {listings.length}+ items listed</span>
+        <span className="flex items-center gap-1.5"><Tag size={13} /> {categories.length - 1} categories</span>
+        <span className="flex items-center gap-1.5"><Sparkles size={13} /> AI-assisted listings</span>
+        <span className="flex items-center gap-1.5"><ShieldCheck size={13} /> Secure checkout via Stripe</span>
+      </div>
+
       {/* Banner */}
       <Banner />
 
       {/* Recently viewed */}
       <RecentlyViewed />
+
+      {/* Shop by category */}
+      <div className="max-w-[1400px] mx-auto px-8 pt-8">
+        <h2 className="text-[13px] font-bold text-[var(--color-muted)] uppercase tracking-wide mb-4">Shop by category</h2>
+        <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+          {categories.filter((c) => c !== "All").map((cat) => {
+            const info = categoryInfo[cat];
+            const Icon = info.icon;
+            const count = listings.filter((l) => l.category === cat).length;
+            return (
+              <button
+                key={cat}
+                onClick={() => setActiveCategory(cat)}
+                className="group flex flex-col items-center gap-2 p-4 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)] shadow-[var(--shadow-card)] hover:-translate-y-1 hover:shadow-[var(--shadow-card-hover)] transition-all"
+              >
+                <div
+                  className="w-12 h-12 rounded-2xl flex items-center justify-center text-white shadow-md group-hover:scale-105 transition-transform"
+                  style={{ background: info.gradient }}
+                >
+                  <Icon size={22} />
+                </div>
+                <span className="text-[12.5px] font-bold">{cat}</span>
+                <span className="text-[10.5px] text-[var(--color-muted)]">{count} items</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Trending now */}
+      {trending.length > 0 && (
+        <div className="max-w-[1400px] mx-auto px-8 pt-8">
+          <div className="flex items-center gap-2 mb-4">
+            <span className="text-base">🔥</span>
+            <h2 className="text-[13px] font-bold text-[var(--color-muted)] uppercase tracking-wide">Trending now</h2>
+          </div>
+          <div className="flex gap-4 overflow-x-auto scrollbar-hide pb-2">
+            {trending.map((listing, i) => (
+              <Link href={`/listings/${listing.id}`} key={listing.id} className="group no-underline shrink-0 w-[170px]">
+                <div className="rounded-2xl overflow-hidden bg-[var(--color-surface)] border border-[var(--color-border)] shadow-[var(--shadow-card)] transition-all duration-200 group-hover:shadow-[var(--shadow-card-hover)] group-hover:-translate-y-1">
+                  <div className="relative pt-[100%] overflow-hidden">
+                    <Image
+                      src={listing.image}
+                      alt={listing.title}
+                      fill
+                      className="object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    <span className="absolute top-2 left-2 text-[11px] font-black w-6 h-6 rounded-full bg-[linear-gradient(135deg,var(--color-brand-start),var(--color-brand-end))] text-white flex items-center justify-center shadow-[var(--shadow-glow-brand-sm)]">
+                      {i + 1}
+                    </span>
+                  </div>
+                  <div className="px-3 pb-3 pt-2.5">
+                    <p className="text-[12.5px] font-semibold truncate mb-1">{listing.title}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="text-[14px] font-extrabold">${listing.price}</span>
+                      <span className="flex items-center gap-1 text-[11px] text-[var(--color-muted)] font-semibold">
+                        <Heart size={11} fill="#ff3b3b" color="#ff3b3b" /> {listing.likes}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Filters bar */}
       <div className="max-w-[1400px] mx-auto px-8 pt-6">
@@ -382,7 +471,10 @@ export default function Home() {
                       <span className="text-[11px] font-semibold text-[var(--color-muted)] bg-[var(--color-subtle)] px-2 py-[3px] rounded-md border border-[var(--color-border)]">
                         {listing.condition}
                       </span>
-                      <span className="text-[11px] text-[var(--color-muted)] font-medium">@{listing.seller}</span>
+                      <span className="flex items-center gap-2 text-[11px] text-[var(--color-muted)] font-medium">
+                        <span className="flex items-center gap-0.5"><Heart size={10} className="text-[var(--color-brand)]" fill="currentColor" /> {listing.likes}</span>
+                        @{listing.seller}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -392,6 +484,23 @@ export default function Home() {
           </div>
         )}
       </main>
+
+      {/* Footer */}
+      <footer className="border-t border-[var(--color-border)] mt-8">
+        <div className="max-w-[1400px] mx-auto px-8 py-10 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg bg-[linear-gradient(135deg,var(--color-brand-start),var(--color-brand-end))] flex items-center justify-center">
+              <span className="text-white text-xs font-black">M</span>
+            </div>
+            <span className="font-extrabold text-sm tracking-tight">mercari</span>
+          </div>
+          <div className="flex items-center gap-6 text-[12.5px] text-[var(--color-muted)] font-medium">
+            <Link href="/sell" className="hover:text-[var(--color-brand)] transition-colors no-underline">Sell</Link>
+            <Link href="/auth" className="hover:text-[var(--color-brand)] transition-colors no-underline">Sign in</Link>
+            <span>© {new Date().getFullYear()} mercari clone</span>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
