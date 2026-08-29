@@ -9,6 +9,7 @@ import { demoListings } from "./demoListings";
 import {
   Search, Moon, Sun, Heart, SlidersHorizontal, ChevronDown, LogOut, Tag, LayoutList, Settings, PackageSearch,
   Smartphone, Footprints, Shirt, Gamepad2, Home as HomeIcon, ShoppingBag, ShieldCheck, Sparkles,
+  User, LogIn, UserPlus,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import Banner from "./components/Banner";
@@ -216,7 +217,39 @@ export default function Home() {
                 )}
               </div>
             ) : (
-              <Button href="/auth" variant="secondary" className="text-[13px] px-4 py-2">Sign in</Button>
+              <div className="relative">
+                <button
+                  onClick={() => setShowProfileMenu(!showProfileMenu)}
+                  className="w-9 h-9 rounded-full border-[1.5px] border-[var(--color-border)] bg-[var(--color-subtle)] flex items-center justify-center text-[var(--color-muted)] hover:bg-[var(--color-border)] transition-colors"
+                >
+                  <User size={16} />
+                </button>
+                {showProfileMenu && (
+                  <div
+                    className="absolute top-[46px] right-0 bg-[var(--color-surface)] border border-[var(--color-border)] rounded-2xl p-1.5 min-w-[220px] shadow-[0_12px_40px_rgba(0,0,0,0.15)] z-[100]"
+                    onMouseLeave={() => setShowProfileMenu(false)}
+                  >
+                    <div className="px-3 pt-2 pb-2.5 mb-1">
+                      <p className="text-[13px] font-bold">Welcome</p>
+                      <p className="text-[11.5px] text-[var(--color-muted)]">Sign in to buy, sell, and save items</p>
+                    </div>
+                    <Link
+                      href="/auth"
+                      onClick={() => setShowProfileMenu(false)}
+                      className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-[13px] font-bold no-underline text-white mb-1 bg-[linear-gradient(135deg,var(--color-brand-start),var(--color-brand-end))] shadow-[var(--shadow-glow-brand-sm)] hover:opacity-95 transition-opacity"
+                    >
+                      <LogIn size={14} /> Sign in
+                    </Link>
+                    <Link
+                      href="/auth?mode=signup"
+                      onClick={() => setShowProfileMenu(false)}
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-[13px] font-medium no-underline hover:bg-[var(--color-subtle)] transition-colors"
+                    >
+                      <UserPlus size={14} /> Create account
+                    </Link>
+                  </div>
+                )}
+              </div>
             )}
 
             <Button href="/sell" className="text-[13.5px]">+ Sell</Button>
