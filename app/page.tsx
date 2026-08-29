@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { Listing } from "./types";
+import { demoListings } from "./demoListings";
 import { Search, Moon, Sun, Heart, SlidersHorizontal, ChevronDown, LogOut, Tag, LayoutList, Settings, PackageSearch } from "lucide-react";
 import Banner from "./components/Banner";
 import RecentlyViewed from "./components/RecentlyViewed";
@@ -52,7 +53,9 @@ export default function Home() {
         likes: l.likes,
         description: l.description,
       }));
-      setListings(mapped);
+      setListings(mapped.length > 0 ? mapped : demoListings);
+    } else {
+      setListings(demoListings);
     }
     setLoading(false);
   }
@@ -340,8 +343,9 @@ export default function Home() {
           </div>
         ) : (
           <div className="grid gap-5" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
-            {filtered.map((listing) => (
-              <Link href={`/listings/${listing.id}`} key={listing.id} className="group no-underline">
+            {filtered.map((listing) => {
+              const isDemo = listing.id < 0;
+              const card = (
                 <div className="rounded-2xl overflow-hidden bg-[var(--color-surface)] border border-[var(--color-border)] shadow-[var(--shadow-card)] transition-all duration-200 group-hover:shadow-[var(--shadow-card-hover)] group-hover:-translate-y-1">
                   {/* Image */}
                   <div className="relative pt-[75%] overflow-hidden">
@@ -372,12 +376,19 @@ export default function Home() {
                       <span className="text-[11px] font-semibold text-[var(--color-muted)] bg-[var(--color-subtle)] px-2 py-[3px] rounded-md border border-[var(--color-border)]">
                         {listing.condition}
                       </span>
-                      <span className="text-[11px] text-[var(--color-muted)] font-medium">@{listing.seller}</span>
+                      <span className="text-[11px] text-[var(--color-muted)] font-medium">
+                        {isDemo ? "Demo listing" : `@${listing.seller}`}
+                      </span>
                     </div>
                   </div>
                 </div>
-              </Link>
-            ))}
+              );
+              return isDemo ? (
+                <div key={listing.id} className="group cursor-default">{card}</div>
+              ) : (
+                <Link href={`/listings/${listing.id}`} key={listing.id} className="group no-underline">{card}</Link>
+              );
+            })}
           </div>
         )}
       </main>
