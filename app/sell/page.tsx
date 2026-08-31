@@ -16,8 +16,8 @@ export default function SellPage() {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState("");
   const [form, setForm] = useState({ title: "", price: "", category: "", condition: "", description: "" });
-  const [image, setImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [images, setImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data: { user } }) => {
@@ -30,24 +30,35 @@ export default function SellPage() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  const handleImage = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) { setImage(file); setImagePreview(URL.createObjectURL(file)); }
+  const MAX_PHOTOS = 5;
+
+  const handleImages = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []).slice(0, MAX_PHOTOS - images.length);
+    if (files.length === 0) return;
+    setImages((prev) => [...prev, ...files].slice(0, MAX_PHOTOS));
+    setImagePreviews((prev) => [...prev, ...files.map((f) => URL.createObjectURL(f))].slice(0, MAX_PHOTOS));
+    e.target.value = "";
+  };
+
+  const removeImage = (index: number) => {
+    setImages((prev) => prev.filter((_, i) => i !== index));
+    setImagePreviews((prev) => prev.filter((_, i) => i !== index));
   };
 
   const handleGenerate = async () => {
-    if (!image) return;
+    const primary = images[0];
+    if (!primary) return;
     setGenerating(true);
     setError("");
     try {
       const reader = new FileReader();
-      reader.readAsDataURL(image);
+      reader.readAsDataURL(primary);
       reader.onload = async () => {
         const base64 = (reader.result as string).split(",")[1];
         const res = await fetch("/api/generate-listing", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ imageBase64: base64, mediaType: image.type }),
+          body: JSON.stringify({ imageBase64: base64, mediaType: primary.type }),
         });
         const data = await res.json();
         if (data.error) throw new Error(data.error);
@@ -66,18 +77,20 @@ export default function SellPage() {
     setLoading(true);
     setError("");
     try {
-      let imageUrl = null;
-      if (image) {
-        const ext = image.name.split(".").pop();
-        const path = `${userId}/${Date.now()}.${ext}`;
-        const { error: uploadError } = await supabase.storage.from("listing-images").upload(path, image);
+      const imageUrls: string[] = [];
+      for (const file of images) {
+        const ext = file.name.split(".").pop();
+        const path = `${userId}/${Date.now()}-${imageUrls.length}.${ext}`;
+        const { error: uploadError } = await supabase.storage.from("listing-images").upload(path, file);
         if (uploadError) throw uploadError;
         const { data: urlData } = supabase.storage.from("listing-images").getPublicUrl(path);
-        imageUrl = urlData.publicUrl;
+        imageUrls.push(urlData.publicUrl);
       }
       const { error: insertError } = await supabase.from("listings").insert({
         title: form.title, price: Number(form.price), category: form.category,
-        condition: form.condition, description: form.description, image_url: imageUrl, seller_id: userId,
+        condition: form.condition, description: form.description,
+        image_url: imageUrls[0] || null, images: imageUrls.length > 0 ? imageUrls : null,
+        seller_id: userId,
       });
       if (insertError) throw insertError;
       router.push("/");
@@ -98,24 +111,50 @@ export default function SellPage() {
         <h1 className="text-2xl font-extrabold mb-6 tracking-tight">List an item</h1>
         <form onSubmit={handleSubmit} className="bg-[var(--color-surface)] rounded-2xl border border-[var(--color-border)] shadow-[var(--shadow-card)] p-6 space-y-5">
           <div>
-            <label className={labelClass}>Photo</label>
+            <label className={labelClass}>Photos ({images.length}/{MAX_PHOTOS})</label>
             <div
               className="w-full h-48 border-2 border-dashed border-[var(--color-border)] rounded-xl flex items-center justify-center cursor-pointer overflow-hidden hover:border-[var(--color-brand)] transition-colors"
               onClick={() => document.getElementById("image-input")?.click()}
             >
-              {imagePreview ? (
+              {imagePreviews[0] ? (
                 // eslint-disable-next-line @next/next/no-img-element
-                <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
+                <img src={imagePreviews[0]} alt="Preview" className="w-full h-full object-cover" />
               ) : (
                 <div className="text-center">
                   <p className="text-3xl mb-1">📷</p>
-                  <p className="text-xs text-[var(--color-muted)]">Click to upload a photo</p>
+                  <p className="text-xs text-[var(--color-muted)]">Click to upload up to {MAX_PHOTOS} photos</p>
                 </div>
               )}
             </div>
-            <input id="image-input" type="file" accept="image/*" onChange={handleImage} className="hidden" />
+            <input id="image-input" type="file" accept="image/*" multiple onChange={handleImages} className="hidden" />
+            {imagePreviews.length > 0 && (
+              <div className="flex gap-2 mt-2 flex-wrap">
+                {imagePreviews.map((src, i) => (
+                  <div key={src} className="relative w-14 h-14 rounded-lg overflow-hidden border border-[var(--color-border)]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={src} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(i)}
+                      className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-black/60 text-white text-[10px] flex items-center justify-center leading-none"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+                {images.length < MAX_PHOTOS && (
+                  <button
+                    type="button"
+                    onClick={() => document.getElementById("image-input")?.click()}
+                    className="w-14 h-14 rounded-lg border-2 border-dashed border-[var(--color-border)] flex items-center justify-center text-[var(--color-muted)] text-lg hover:border-[var(--color-brand)] transition-colors"
+                  >
+                    +
+                  </button>
+                )}
+              </div>
+            )}
           </div>
-          {image && (
+          {images.length > 0 && (
             <Button type="button" variant="ai" onClick={handleGenerate} disabled={generating} className="w-full py-3 text-sm">
               {generating ? <><span className="animate-spin">⏳</span> Generating...</> : <>✨ Generate listing with AI</>}
             </Button>

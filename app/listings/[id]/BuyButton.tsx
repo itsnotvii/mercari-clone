@@ -45,6 +45,11 @@ export default function BuyButton({ listingId, title, price, image, sellerId }: 
       if (user.id === sellerId) throw new Error("You can't make an offer on your own listing");
       const { error } = await supabase.from("offers").insert({ listing_id: listingId, buyer_id: user.id, seller_id: sellerId, amount: Number(offerAmount) });
       if (error) throw error;
+      await supabase.from("notifications").insert({
+        user_id: sellerId,
+        type: "offer_received",
+        payload: { listingId, listingTitle: title, amount: Number(offerAmount) },
+      });
       setOfferStatus("success");
     } catch (err: unknown) {
       setErrorMsg(err instanceof Error ? err.message : "Something went wrong");

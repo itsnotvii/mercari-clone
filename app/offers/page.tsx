@@ -40,6 +40,19 @@ export default function OffersPage() {
     setUpdating(offerId);
     await supabase.from("offers").update({ status }).eq("id", offerId);
     setOffers((prev) => prev.map((o) => (o.id === offerId ? { ...o, status } : o)));
+
+    const offer = offers.find((o) => o.id === offerId);
+    if (offer) {
+      if (status === "accepted") {
+        await supabase.from("listings").update({ sold: true }).eq("id", offer.listing_id);
+      }
+      await supabase.from("notifications").insert({
+        user_id: offer.buyer_id,
+        type: status === "accepted" ? "offer_accepted" : "offer_declined",
+        payload: { listingId: offer.listing_id, listingTitle: offer.listings?.title },
+      });
+    }
+
     setUpdating(null);
   }
 

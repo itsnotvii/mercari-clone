@@ -15,6 +15,7 @@ import type { LucideIcon } from "lucide-react";
 import Banner from "./components/Banner";
 import RecentlyViewed from "./components/RecentlyViewed";
 import Button from "./components/ui/Button";
+import NotificationBell from "./components/NotificationBell";
 import { useTheme } from "./components/ThemeProvider";
 
 const categories = ["All", "Electronics", "Sneakers", "Clothing", "Gaming", "Home", "Bags"];
@@ -75,9 +76,17 @@ export default function Home() {
     setLoading(false);
   }
 
+  async function fetchLikes(userId: string) {
+    const { data, error } = await supabase.from("listing_likes").select("listing_id").eq("user_id", userId);
+    if (!error && data) setLiked(data.map((r) => r.listing_id));
+  }
+
   async function fetchUser() {
     const { data: { user } } = await supabase.auth.getUser();
-    if (user) setUser({ id: user.id, email: user.email });
+    if (user) {
+      setUser({ id: user.id, email: user.email });
+      fetchLikes(user.id);
+    }
   }
 
   useEffect(() => {
@@ -90,9 +99,20 @@ export default function Home() {
     setUser(null);
   }
 
-  const toggleLike = (e: React.MouseEvent, id: number) => {
+  const toggleLike = async (e: React.MouseEvent, id: number) => {
     e.preventDefault();
-    setLiked((prev) => (prev.includes(id) ? prev.filter((l) => l !== id) : [...prev, id]));
+    const wasLiked = liked.includes(id);
+    setLiked((prev) => (wasLiked ? prev.filter((l) => l !== id) : [...prev, id]));
+
+    // Signed-out users and demo (negative-id) listings keep the toggle local-only —
+    // there's no account to persist to, and demo ids don't exist in the real listings table.
+    if (!user || id < 0) return;
+
+    if (wasLiked) {
+      await supabase.from("listing_likes").delete().eq("user_id", user.id).eq("listing_id", id);
+    } else {
+      await supabase.from("listing_likes").insert({ user_id: user.id, listing_id: id });
+    }
   };
 
   const filtered = useMemo(() => {
@@ -184,6 +204,8 @@ export default function Home() {
             >
               {dark ? <Sun size={15} /> : <Moon size={15} />}
             </button>
+
+            {user && <NotificationBell />}
 
             {user ? (
               <div className="relative">
