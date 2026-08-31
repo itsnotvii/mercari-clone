@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { ThemeProvider } from "./components/ThemeProvider";
+import { NotificationsProvider } from "./components/NotificationsProvider";
 
 export const metadata: Metadata = {
   title: "mercari — buy and sell anything",
@@ -26,7 +27,9 @@ export default function RootLayout({
     <html lang="en" className="h-full antialiased" suppressHydrationWarning>
       <body className="min-h-full flex flex-col">
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <NotificationsProvider>{children}</NotificationsProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
