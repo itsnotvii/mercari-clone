@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 import { demoListings } from "../demoListings";
+import { Tag, Sparkles, Wallet, Heart, type LucideIcon } from "lucide-react";
 
 type ListingSlide = {
   type: "listing";
@@ -26,6 +27,7 @@ type PromoSlide = {
   cta: string;
   href: string;
   gradient: string;
+  decorIcon: LucideIcon;
 };
 
 type Slide = ListingSlide | PromoSlide;
@@ -40,6 +42,7 @@ const promoSlides: PromoSlide[] = [
     cta: "Shop the sale",
     href: "/",
     gradient: "linear-gradient(135deg, #ff3b3b, #ff6b35)",
+    decorIcon: Tag,
   },
   {
     type: "promo",
@@ -50,6 +53,7 @@ const promoSlides: PromoSlide[] = [
     cta: "Browse new arrivals",
     href: "/",
     gradient: "linear-gradient(135deg, #0ea5e9, #6366f1)",
+    decorIcon: Sparkles,
   },
   {
     type: "promo",
@@ -60,6 +64,7 @@ const promoSlides: PromoSlide[] = [
     cta: "Start selling",
     href: "/sell",
     gradient: "linear-gradient(135deg, #f59e0b, #ec4899)",
+    decorIcon: Wallet,
   },
 ];
 
@@ -134,10 +139,19 @@ export default function Banner() {
           <p className="text-white/70 text-base sm:text-lg mb-5">{slide.condition} · {slide.category}</p>
           <p className="text-4xl sm:text-5xl font-black text-white">${slide.price}</p>
         </div>
+        <div className="hidden lg:flex absolute right-16 top-1/2 -translate-y-1/2 items-center gap-2 bg-white/15 backdrop-blur-md border border-white/20 rounded-full px-5 py-3">
+          <Heart size={16} className="text-white" fill="#fff" />
+          <span className="text-white text-sm font-bold">Loved by shoppers</span>
+        </div>
       </div>
     ) : (
-      <div className="relative w-full h-full flex items-center" style={{ background: slide.gradient }}>
+      <div className="relative w-full h-full flex items-center overflow-hidden" style={{ background: slide.gradient }}>
         <div className="absolute inset-0 opacity-[0.08]" style={{ backgroundImage: "radial-gradient(circle at 20% 20%, #fff 0, transparent 45%), radial-gradient(circle at 85% 75%, #fff 0, transparent 40%)" }} />
+        <slide.decorIcon
+          size={420}
+          strokeWidth={1}
+          className="hidden lg:block absolute -right-16 top-1/2 -translate-y-1/2 text-white/[0.12] pointer-events-none"
+        />
         <div className="relative px-10 sm:px-16 max-w-2xl">
           <span className="text-xs font-bold px-4 py-1.5 rounded-full mb-4 inline-block w-fit bg-white/20 text-white backdrop-blur-sm">
             {slide.eyebrow}
