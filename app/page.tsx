@@ -340,17 +340,22 @@ export default function Home() {
                   className="absolute inset-0"
                   style={{ background: "linear-gradient(to right, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.3) 55%, transparent 100%)" }}
                 />
-                <div className="absolute inset-0 flex items-center px-8 gap-4">
-                  <div
-                    className="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-md shrink-0"
-                    style={{ background: info.gradient }}
-                  >
-                    <Icon size={26} />
+                <div className="absolute inset-0 flex items-center justify-between px-8 gap-4">
+                  <div className="flex items-center gap-4">
+                    <div
+                      className="w-14 h-14 rounded-2xl flex items-center justify-center text-white shadow-md shrink-0"
+                      style={{ background: info.gradient }}
+                    >
+                      <Icon size={26} />
+                    </div>
+                    <div>
+                      <p className="text-white text-2xl font-black tracking-tight">{cat}</p>
+                      <p className="text-white/70 text-sm">{count} items available</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-white text-2xl font-black tracking-tight">{cat}</p>
-                    <p className="text-white/70 text-sm">{count} items available</p>
-                  </div>
+                  <span className="hidden sm:inline-flex items-center gap-1.5 bg-white/15 backdrop-blur-md border border-white/20 text-white text-sm font-bold px-5 py-2.5 rounded-full shrink-0">
+                    Browse {cat} →
+                  </span>
                 </div>
               </button>
             );
@@ -575,17 +580,55 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="border-t border-[var(--color-border)] mt-8">
-        <div className="max-w-[1400px] mx-auto px-8 py-10 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-[linear-gradient(135deg,var(--color-brand-start),var(--color-brand-end))] flex items-center justify-center">
-              <span className="text-white text-xs font-black">M</span>
+        <div className="max-w-[1400px] mx-auto px-8 pt-12 pb-8">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-8 pb-8">
+            <div className="col-span-2 sm:col-span-1">
+              <Link href="/" className="flex items-center gap-2 no-underline w-fit">
+                <div className="w-7 h-7 rounded-lg bg-[linear-gradient(135deg,var(--color-brand-start),var(--color-brand-end))] flex items-center justify-center shrink-0">
+                  <span className="text-white text-xs font-black">M</span>
+                </div>
+                <span className="font-extrabold text-sm tracking-tight text-[var(--color-text)]">mercari</span>
+              </Link>
+              <p className="text-xs text-[var(--color-muted)] mt-3 max-w-[220px] leading-relaxed">
+                A modern marketplace to buy and sell pre-loved items, safely and easily.
+              </p>
             </div>
-            <span className="font-extrabold text-sm tracking-tight">mercari</span>
+
+            <div>
+              <h3 className="text-[11px] font-bold uppercase tracking-wide text-[var(--color-muted)] mb-3">Marketplace</h3>
+              <ul className="flex flex-col gap-2 text-[13px] font-medium">
+                <li><Link href="/" className="text-[var(--color-text)] no-underline hover:text-[var(--color-brand)] transition-colors">Browse listings</Link></li>
+                <li><Link href="/sell" className="text-[var(--color-text)] no-underline hover:text-[var(--color-brand)] transition-colors">Sell an item</Link></li>
+              </ul>
+              <div className="flex flex-wrap gap-1.5 mt-3.5">
+                {categoryList.map((cat) => (
+                  <span key={cat} className="text-[10.5px] px-2 py-1 rounded-md bg-[var(--color-subtle)] text-[var(--color-muted)] font-medium">{cat}</span>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-[11px] font-bold uppercase tracking-wide text-[var(--color-muted)] mb-3">Account</h3>
+              <ul className="flex flex-col gap-2 text-[13px] font-medium">
+                <li><Link href="/my-listings" className="text-[var(--color-text)] no-underline hover:text-[var(--color-brand)] transition-colors">My Listings</Link></li>
+                <li><Link href="/offers" className="text-[var(--color-text)] no-underline hover:text-[var(--color-brand)] transition-colors">Offers</Link></li>
+                <li><Link href="/messages" className="text-[var(--color-text)] no-underline hover:text-[var(--color-brand)] transition-colors">Messages</Link></li>
+                <li><Link href="/settings" className="text-[var(--color-text)] no-underline hover:text-[var(--color-brand)] transition-colors">Settings</Link></li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-[11px] font-bold uppercase tracking-wide text-[var(--color-muted)] mb-3">Get started</h3>
+              <ul className="flex flex-col gap-2 text-[13px] font-medium">
+                <li><Link href="/auth" className="text-[var(--color-text)] no-underline hover:text-[var(--color-brand)] transition-colors">Sign in</Link></li>
+                <li><Link href="/auth?mode=signup" className="text-[var(--color-text)] no-underline hover:text-[var(--color-brand)] transition-colors">Create account</Link></li>
+              </ul>
+            </div>
           </div>
-          <div className="flex items-center gap-6 text-[12.5px] text-[var(--color-muted)] font-medium">
-            <Link href="/sell" className="hover:text-[var(--color-brand)] transition-colors no-underline">Sell</Link>
-            <Link href="/auth" className="hover:text-[var(--color-brand)] transition-colors no-underline">Sign in</Link>
+
+          <div className="pt-6 border-t border-[var(--color-border)] flex flex-col sm:flex-row items-center justify-between gap-3 text-[12px] text-[var(--color-muted)]">
             <span>© {new Date().getFullYear()} mercari clone</span>
+            <span>Built with Next.js, Supabase &amp; Stripe</span>
           </div>
         </div>
       </footer>
