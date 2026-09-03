@@ -1,6 +1,6 @@
 # Mercari Clone
 
-A production-grade peer-to-peer marketplace built from scratch with Next.js 16, TypeScript, Supabase, Stripe, and the Anthropic Claude API. Designed to feel like a real product — not a tutorial project.
+Production-grade peer-to-peer marketplace built from scratch with Next.js 16, TypeScript, Supabase, Stripe, and the Anthropic Claude API. Designed to feel like a real product — not a tutorial project.
 
 **Live demo:** [mercari-clone-beige.vercel.app](https://mercari-clone-beige.vercel.app)  
 **Repo:** [github.com/itsnotvii/mercari-clone](https://github.com/itsnotvii/mercari-clone)
