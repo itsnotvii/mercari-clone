@@ -32,6 +32,8 @@ type PromoSlide = {
 
 type Slide = ListingSlide | PromoSlide;
 
+const BRAND_GRADIENT = "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))";
+
 const promoSlides: PromoSlide[] = [
   {
     type: "promo",
@@ -41,7 +43,7 @@ const promoSlides: PromoSlide[] = [
     subtitle: "Deals refresh every weekend — don't miss out",
     cta: "Shop the sale",
     href: "/",
-    gradient: "linear-gradient(135deg, #ff3b3b, #ff6b35)",
+    gradient: BRAND_GRADIENT,
     decorIcon: Tag,
   },
   {
@@ -52,7 +54,7 @@ const promoSlides: PromoSlide[] = [
     subtitle: "Be the first to grab the newest listings",
     cta: "Browse new arrivals",
     href: "/",
-    gradient: "linear-gradient(135deg, #0ea5e9, #6366f1)",
+    gradient: BRAND_GRADIENT,
     decorIcon: Sparkles,
   },
   {
@@ -63,7 +65,7 @@ const promoSlides: PromoSlide[] = [
     subtitle: "Snap a photo — our AI writes the listing for you",
     cta: "Start selling",
     href: "/sell",
-    gradient: "linear-gradient(135deg, #f59e0b, #ec4899)",
+    gradient: BRAND_GRADIENT,
     decorIcon: Wallet,
   },
 ];

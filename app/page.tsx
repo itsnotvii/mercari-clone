@@ -21,13 +21,15 @@ import { useTheme } from "./components/ThemeProvider";
 const categories = ["All", "Electronics", "Sneakers", "Clothing", "Gaming", "Home", "Bags"];
 type SortOption = "default" | "price-asc" | "price-desc" | "most-liked";
 
+const BRAND_GRADIENT = "linear-gradient(135deg, var(--color-brand-start), var(--color-brand-end))";
+
 const categoryInfo: Record<string, { icon: LucideIcon; gradient: string; image: string }> = {
-  Electronics: { icon: Smartphone, gradient: "linear-gradient(135deg, #3b82f6, #6366f1)", image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=1200" },
-  Sneakers: { icon: Footprints, gradient: "linear-gradient(135deg, #f59e0b, #ec4899)", image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1200" },
-  Clothing: { icon: Shirt, gradient: "linear-gradient(135deg, #8b5cf6, #ec4899)", image: "https://images.unsplash.com/photo-1551537482-f2075a1d41f2?w=1200" },
-  Gaming: { icon: Gamepad2, gradient: "linear-gradient(135deg, #10b981, #06b6d4)", image: "https://images.unsplash.com/photo-1578303512597-81e6cc155b3e?w=1200" },
-  Home: { icon: HomeIcon, gradient: "linear-gradient(135deg, #14b8a6, #3b82f6)", image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200" },
-  Bags: { icon: ShoppingBag, gradient: "linear-gradient(135deg, #f43f5e, #f97316)", image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=1200" },
+  Electronics: { icon: Smartphone, gradient: BRAND_GRADIENT, image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=1200" },
+  Sneakers: { icon: Footprints, gradient: BRAND_GRADIENT, image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=1200" },
+  Clothing: { icon: Shirt, gradient: BRAND_GRADIENT, image: "https://images.unsplash.com/photo-1551537482-f2075a1d41f2?w=1200" },
+  Gaming: { icon: Gamepad2, gradient: BRAND_GRADIENT, image: "https://images.unsplash.com/photo-1578303512597-81e6cc155b3e?w=1200" },
+  Home: { icon: HomeIcon, gradient: BRAND_GRADIENT, image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200" },
+  Bags: { icon: ShoppingBag, gradient: BRAND_GRADIENT, image: "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=1200" },
 };
 const categoryList = categories.filter((c) => c !== "All");
 
